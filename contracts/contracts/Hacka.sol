@@ -35,10 +35,12 @@ contract Hacka is Ownable {
     mapping(uint => HackathonPrize[]) public s_prizes;
     mapping(address => uint[]) public s_organizerHackathons;
 
-   /**
-    * @notice Deploy with the address of the LINK token
-    * @notice @param _link The address of the LINK token
-    */
+    event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart);
+
+    /**
+     * @notice Deploy with the address of the LINK token
+     * @notice @param _link The address of the LINK token
+     */
     constructor(/*address _link*/) {
         // LinkToken = LinkTokenInterface(_link);
         // TODO should not be hardcoded
@@ -74,7 +76,7 @@ contract Hacka is Ownable {
 
         s_organizerHackathons[msg.sender].push(hackathonId);
 
-        // TODO emit event about hackathon being created
+        emit HackathonCreated(hackathonId, msg.sender, _name, _url, _timestampStart);
 
         return hackathonId;
     }
