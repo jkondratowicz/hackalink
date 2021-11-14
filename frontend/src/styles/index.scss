@@ -1,0 +1,58 @@
+$hk-blue-light: #0C4CB2;
+$hk-blue-mid: #022D72;
+$hk-blue-dark: #09244C;
+
+$hk-green-dark: #04DDAE;
+$hk-green-light: #04E8B6;
+
+$hk-purple: #9C1BC4;
+
+$hk-white: #EEE;
+
+body {
+  background-color: $hk-blue-mid;
+  color: $hk-white;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button {
+  font-family: 'Share', sans-serif;
+  font-weight: 400;
+}
+
+.ui.button {
+  font-family: 'Share', sans-serif;;
+  font-weight: 400;
+  font-size: 1.1rem;
+  border-radius: 0.1rem;
+}
+
+.ui.input > input, .ui.form textarea {
+  border-radius: 0.1rem;
+  border: 1px $hk-green-dark solid;
+  background: $hk-green-light;
+  color: $hk-blue-dark;
+
+  &:focus {
+    border-radius: 0.1rem;
+    background-color: $hk-green-dark;
+    border: 1px $hk-green-light solid;
+  }
+}
+
+.ui.input > input::placeholder, .ui.input > input:focus::placeholder {
+  color: $hk-blue-dark;
+}
+
+.ui.menu .username {
+  height: 100%;
+  line-height: 1;
+  img.blockie {
+    height: 2rem;
+    width: 2rem;
+    margin-top: 0.2rem;
+  }
+}
+
+.ui.inverted.menu {
+  background: $hk-blue-dark;
+}
