@@ -44,15 +44,24 @@ body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button {
 }
 
 .ui.menu .username {
-  height: 100%;
-  line-height: 1;
+  padding: 0 0 0 10px;
+
   img.blockie {
-    height: 2rem;
-    width: 2rem;
-    margin-top: 0.2rem;
+    height: 28px;
+    width: 28px;
+    margin-right: 5px;
   }
 }
 
 .ui.inverted.menu {
   background: $hk-blue-dark;
+  .item.logo {
+    padding: 0;
+    background: $hk-blue-dark;
+
+    img {
+      height: 40px;
+      width: auto;
+    }
+  }
 }

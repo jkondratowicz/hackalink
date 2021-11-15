@@ -10,13 +10,13 @@ export default function AuthStatus() {
     <div className="right menu">
       {isAuthenticated && user ? (
         <>
-          <Button onClick={() => logout()} className="ui item">
+          <a onClick={() => logout()} className="ui item">
             <Icon name="sign-out" size="small" />
             Sign out
-          </Button>
-          <span className="username">
+          </a>
+          <div className="username ui item">
             <img className="blockie" src={makeBlockie(user.get('ethAddress'))} alt={user.get('ethAddress')} /> {user.get('username')}
-          </span>
+          </div>
         </>
       ) : (
         <Button onClick={() => authenticate()} className="ui item">
