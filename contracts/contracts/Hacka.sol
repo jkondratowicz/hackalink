@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 
 contract Hacka is Ownable {
+    bool private s_demoMode = false; // to be deleted
     uint private s_counter = 0;
     LinkTokenInterface internal LinkToken;
 
@@ -56,13 +57,15 @@ contract Hacka is Ownable {
         string calldata _url,
         uint8 _judgingPeriod
     ) external returns (uint hackathonId) {
-        validateMetadata(
-            _timestampStart,
-            _timestampEnd,
-            _name,
-            _judgingPeriod,
-            block.timestamp
-        );
+        if (s_demoMode == false) {
+            validateMetadata(
+                _timestampStart,
+                _timestampEnd,
+                _name,
+                _judgingPeriod,
+                block.timestamp
+            );
+        }
 
         hackathonId = s_counter;
         s_counter = s_counter + 1;
@@ -186,5 +189,15 @@ contract Hacka is Ownable {
      */
     function withdrawLink() public onlyOwner {
         require(LinkToken.transfer(msg.sender, LinkToken.balanceOf(address(this))), "Unable to transfer");
+    }
+
+    // TODO delete for actual use! demo mode is to be able to skip date checks to create a demo hackathon
+    function enableDemoMode() public onlyOwner {
+        s_demoMode = true;
+    }
+
+    // TODO delete for actual use! demo mode is to be able to skip date checks to create a demo hackathon
+    function disableDemoMode() public onlyOwner {
+        s_demoMode = false;
     }
 }
