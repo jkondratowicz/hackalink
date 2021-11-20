@@ -9,43 +9,27 @@ function AppHeader() {
   return (
     <div className="ui fixed inverted menu borderlesss">
       <div className="ui container">
-        <NavLink
-          exact
-          to="/"
-          className="item logo"
-          activeClassName="active"
-        >
+        <NavLink exact to="/" className="item logo" activeClassName="active">
           <img src={logo} alt="Hacka.link" />
         </NavLink>
-        { isAuthenticated ? (<>
-          <NavLink
-            exact
-            to="/organize"
-            className="item"
-            activeClassName="active"
-          >
-            <Icon name="cogs" size="small" />
-            Organize
-          </NavLink>
-          <NavLink
-            exact
-            to="/judge"
-            className="item"
-            activeClassName="active"
-          >
-            <Icon name="gavel" size="small" />
-            Judge
-          </NavLink>
-          <NavLink
-            exact
-            to="/participate"
-            className="item"
-            activeClassName="active"
-          >
-            <Icon name="code" size="small" />
-            Participate
-          </NavLink>
-        </>) : <></> }
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/organize" className="item" activeClassName="active">
+              <Icon name="cogs" size="small" />
+              Organize
+            </NavLink>
+            <NavLink to="/judge" className="item" activeClassName="active">
+              <Icon name="gavel" size="small" />
+              Judge
+            </NavLink>
+            <NavLink to="/participate" className="item" activeClassName="active">
+              <Icon name="code" size="small" />
+              Participate
+            </NavLink>
+          </>
+        ) : (
+          <></>
+        )}
         <AuthStatus />
       </div>
     </div>

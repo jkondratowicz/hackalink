@@ -1,12 +1,12 @@
-import MoralisType from "moralis";
-import BigNumber from "bignumber.js";
+import MoralisType from 'moralis';
+import BigNumber from 'bignumber.js';
 import * as HackaABI from '../contracts/Hacka.json';
 
 export enum HackathonStage {
   NEW,
   STARTED,
   JUDGING,
-  FINALIZED
+  FINALIZED,
 }
 
 export class HackathonMetadata {
@@ -28,9 +28,17 @@ export class HackathonMetadata {
     this.judgingPeriod = parseInt(metadata[3], 10);
     this.stage = parseInt(metadata[4], 10) as HackathonStage;
     this.name = metadata[5];
-    this.url = metadata[6]
+    this.url = metadata[6];
     this.balance = new BigNumber(metadata[7]);
   }
+}
+
+export interface CreateHackathonData {
+  timestampStart: number;
+  timestampEnd: number;
+  judgingPeriod: number;
+  name: string;
+  url: string;
 }
 
 export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: string): Promise<any[]> {
@@ -38,14 +46,14 @@ export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: 
     const options = {
       chain: process.env.REACT_APP_CHAIN_ID,
       address: HackaABI.address,
-      function_name: "getHackathonsByOrganizer",
+      function_name: 'getHackathonsByOrganizer',
       abi: HackaABI.abi,
       params: {
         _organizer: organizer,
-      }
+      },
     };
     // @ts-ignore
-    const hackathonIds = (await Moralis.Web3API.native.runContractFunction(options));
+    const hackathonIds = await Moralis.Web3API.native.runContractFunction(options);
     if (!hackathonIds.length) {
       return [];
     }
@@ -55,11 +63,11 @@ export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: 
       const optionsHackathonMetadata = {
         chain: process.env.REACT_APP_CHAIN_ID,
         address: HackaABI.address,
-        function_name: "getHackathonMetadata",
+        function_name: 'getHackathonMetadata',
         abi: HackaABI.abi,
         params: {
           _hackathonId: hackathonId,
-        }
+        },
       };
       // @ts-ignore
       const hackathonMetaData = await Moralis.Web3API.native.runContractFunction(optionsHackathonMetadata);
@@ -74,9 +82,9 @@ export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: 
       }
 
       return a.timestampStart - b.timestampStart;
-    })
+    });
     return results;
-  } catch(e) {
+  } catch (e) {
     // TODO def needs better error handling...
     console.error(e);
     return [];

@@ -1,55 +1,146 @@
 import * as HackaABI from '../contracts/Hacka.json';
-import { Button } from 'semantic-ui-react';
+import { Button, Form, Input, Message } from 'semantic-ui-react';
 import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
 import moment from 'moment';
-import { NavLink } from 'react-router-dom';
-import React from 'react';
+import { Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { CreateHackathonData } from '../models/hackathon';
+import { ApiContext } from '../hooks/ApiContext';
 
 export function CreateHackathon() {
-  const metadata = {
-    _timestampStart: moment().add(2, 'days').unix(),
-    _timestampEnd: moment().add(10, 'days').unix(),
-    _name: 'random name',
-    _url: 'https://localhost',
-    _judgingPeriod: 3,
-  };
   const { enableWeb3 } = useMoralis();
-  const { data, error, fetch, isFetching, isLoading } = useWeb3ExecuteFunction({
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const { setShowSpinner } = useContext(ApiContext);
+  const { fetch } = useWeb3ExecuteFunction({
+    chain: process.env.REACT_APP_CHAIN_ID,
     abi: HackaABI.abi,
     contractAddress: HackaABI.address,
     functionName: 'createHackathon',
   });
-  const createHackathon = async () => {
-    await enableWeb3();
-    await fetch({
-      params: {
-        params: metadata,
-      },
-    });
 
+  const defaultValues = {
+    timestampStart: moment().add(7, 'days').unix(),
+    timestampEnd: moment().add(28, 'days').unix(),
+    name: '',
+    url: 'https://',
+    judgingPeriod: 3,
+  };
+  const [data, setData] = useState(defaultValues);
+
+  const handleMoralisError = (err) => {
+    if (Array.isArray(err)) {
+      err = err[0];
+    }
+
+    setError(err.message || err.error || '' + err);
   };
 
-  return (
+  const handleMoralisSuccess = (result) => {
+    setSuccess(result?.transactionHash);
+  };
+
+  const createHackathon = async (data: CreateHackathonData) => {
+    await fetch({
+      params: {
+        params: {
+          _timestampStart: data.timestampStart,
+          _timestampEnd: data.timestampEnd,
+          _name: data.name,
+          _url: data.url,
+          _judgingPeriod: data.judgingPeriod,
+        },
+      },
+      onError: handleMoralisError,
+      onSuccess: handleMoralisSuccess,
+    });
+  };
+
+  const handleChange = (e, { name, value }) => {
+    if (name === 'judgingPeriod') {
+      value = parseInt(value, 10);
+    }
+    setData({ ...data, [name]: value });
+  };
+
+  const handleSubmit = async () => {
+    await enableWeb3();
+    try {
+      setShowSpinner(true);
+      await createHackathon(data);
+    } catch (e) {
+      console.log(e);
+      setError(e.message || e.error || e.toString() || e);
+    } finally {
+      setShowSpinner(false);
+    }
+  };
+
+  return success ? (
     <>
-      <h1>CreateHackathon</h1>
-      <Button onClick={createHackathon}>Create</Button>
-      <pre>
-        {JSON.stringify(
-          {
-            data,
-            error,
-            fetch,
-            isFetching,
-            isLoading,
-            metadata,
-          },
-          null,
-          2
-        )}
-      </pre>
-      <NavLink to="/">
-        <Button>Go back home</Button>
-      </NavLink>
+      <Link to="/organize">Back to the list</Link>
+      <p>
+        Congratulations, your hackathon has been crated! For more details, see tx hash <code>{success}</code>.
+      </p>
+    </>
+  ) : (
+    <>
+      <Link to="/organize">Back to the list</Link>
+      <h1>Create a new hackathon</h1>
+      {error && (
+        <Message color="red">
+          <h3>Error!</h3>
+          {error}
+        </Message>
+      )}
+
+      <Form onSubmit={handleSubmit}>
+        <Form.Field>
+          <label>
+            Hackathon name:
+            <Input name="name" value={data.name} onChange={handleChange} />
+          </label>
+          <p className="form-help">
+            Make it catchy and unique, e.g. <em>Chainlink Spring 2022 Hackathon</em> :)
+          </p>
+        </Form.Field>
+        <Form.Field>
+          <label>
+            Hackathon promo website URL:
+            <Input name="url" value={data.url} onChange={handleChange} />
+          </label>
+          <p className="form-help">URL of a promotional website hosted by you. This is where you can post workshop schedule, sponsor info etc. </p>
+        </Form.Field>
+        <Form.Field>
+          <label>
+            Start date:
+            <Input name="timestampStart" value={data.timestampStart} onChange={handleChange} />
+          </label>
+          <p className="form-help">
+            Hackathon will commence at this date. You won't be able to change hackathon's metadata, add new prizes etc. after this date.
+          </p>
+        </Form.Field>
+        <Form.Field>
+          <label>
+            End date:
+            <Input name="timestampEnd" value={data.timestampEnd} onChange={handleChange} />
+          </label>
+          <p className="form-help">Last moment for participants to send their submissions.</p>
+        </Form.Field>
+        <Form.Field>
+          <label>
+            Judging period (days):
+            <Input name="judgingPeriod" value={data.judgingPeriod} onChange={handleChange} type="number" />
+          </label>
+          <p className="form-help">How long will the judges have to review and score all submissions.</p>
+        </Form.Field>
+
+        <Button size="massive" color="pink">
+          Create a hackathon
+        </Button>
+      </Form>
+
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </>
   );
 }

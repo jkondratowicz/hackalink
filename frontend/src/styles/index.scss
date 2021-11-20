@@ -14,16 +14,18 @@ body {
   color: $hk-white;
 }
 
-body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button, .ui.list .list > .item .header, .ui.list > .item .header, .ui.list .list > .item .description, .ui.list > .item .description {
+body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button, .ui.list .list > .item .header, .ui.list > .item .header, .ui.list .list > .item .description, .ui.list > .item .description, .ui.form .field > label {
   font-family: 'Share', sans-serif;
   font-weight: 400;
 }
 
 a {
   color: $hk-green-light;
+  text-decoration: none;
 
   &:hover {
     color: $hk-green-dark;
+    text-decoration: underline;
   }
 }
 
@@ -47,7 +49,7 @@ a {
   border-radius: 0.1rem;
 }
 
-.ui.input > input, .ui.form textarea {
+.ui.input > input, .ui.form textarea, .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="file"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="text"], .ui.form input[type="time"], .ui.form input[type="url"] {
   border-radius: 0.1rem;
   border: 1px $hk-green-dark solid;
   background: $hk-green-light;
@@ -58,6 +60,12 @@ a {
     background-color: $hk-green-dark;
     border: 1px $hk-green-light solid;
   }
+}
+
+.ui.form .field > label {
+  color: $hk-white;
+  font-size: 18px;
+  line-height: 24px;
 }
 
 .ui.input > input::placeholder, .ui.input > input:focus::placeholder {
@@ -76,11 +84,12 @@ a {
 
 .ui.inverted.menu {
   background: $hk-blue-dark;
+
   .item.logo {
     padding: 0 30px 0 0;
     background: $hk-blue-dark;
 
-    &:hover {
+    &:hover, &.active:hover {
       background: $hk-blue-dark;
     }
 
@@ -153,4 +162,14 @@ a {
   .content {
     background: $hk-blue-dark;
   }
+}
+
+.form-help {
+  font-size: 14px;
+  color: $hk-green-light;
+}
+
+.ui.red.message {
+  background: #b22020;
+  color: $hk-white;
 }
