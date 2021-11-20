@@ -14,7 +14,7 @@ body {
   color: $hk-white;
 }
 
-body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button {
+body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button, .ui.list .list > .item .header, .ui.list > .item .header, .ui.list .list > .item .description, .ui.list > .item .description {
   font-family: 'Share', sans-serif;
   font-weight: 400;
 }
@@ -23,8 +23,16 @@ a {
   color: $hk-green-light;
 
   &:hover {
-    color: $hk_green-dark;
+    color: $hk-green-dark;
   }
+}
+
+.ui.list .list > .item .header, .ui.list > .item .header {
+  color: $hk-green-light;
+}
+
+.ui.list .list > .item .description, .ui.list > .item .description {
+  color: $hk-white;
 }
 
 .ui.main.container {
@@ -136,5 +144,13 @@ a {
 
   td {
     background-color: $hk-blue-light;
+  }
+}
+
+.ui.modal {
+  background: $hk-blue-dark;
+
+  .content {
+    background: $hk-blue-dark;
   }
 }

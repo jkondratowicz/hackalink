@@ -1,14 +1,17 @@
 import { useMoralis } from 'react-moralis';
-import { Button, Container, Icon, Table } from 'semantic-ui-react';
+import { Button, Container, Icon, Modal, Table } from 'semantic-ui-react';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getHackathonsByOrganizer, HackathonMetadata, HackathonStage } from '../models/hackathon';
 import { ApiContext } from '../hooks/ApiContext';
 import moment from 'moment';
+import { HackathonDetails } from './HackathonDetails';
 
 export function Organize() {
   const { Moralis, user } = useMoralis();
   const { setShowSpinner } = useContext(ApiContext);
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>(null);
 
   const [hackathons, setHackathons] = useState<HackathonMetadata[]>([]);
   useEffect(() => {
@@ -18,9 +21,11 @@ export function Organize() {
 
     setShowSpinner(true);
 
-    getHackathonsByOrganizer(Moralis, user.get('ethAddress')).then(setHackathons).finally(() => {
-      setShowSpinner(false);
-    });
+    getHackathonsByOrganizer(Moralis, user.get('ethAddress'))
+      .then(setHackathons)
+      .finally(() => {
+        setShowSpinner(false);
+      });
   }, [user]);
   return (
     <Container>
@@ -50,12 +55,18 @@ export function Organize() {
               <Table.Cell>{HackathonStage[row.stage]}</Table.Cell>
               <Table.Cell>{moment(row.timestampStart * 1000).format('YYYY-MM-DD HH:mm')}</Table.Cell>
               <Table.Cell>{moment(row.timestampEnd * 1000).format('YYYY-MM-DD HH:mm')}</Table.Cell>
-              <Table.Cell><Button color="green">Show details</Button></Table.Cell>
+              <Table.Cell>
+                <Button color="green" onClick={() => { setSelectedHackathon(row); setModalOpen(true); }}>Show details</Button>
+              </Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
       </Table>
-      <pre>{JSON.stringify(hackathons, null, 2)}</pre>
+      <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
+        <Modal.Content inverted>
+          <HackathonDetails hackathonMetadata={selectedHackathon} />
+        </Modal.Content>
+      </Modal>
     </Container>
   );
 }
