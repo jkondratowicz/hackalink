@@ -1,11 +1,12 @@
 import * as HackaABI from '../contracts/Hacka.json';
 import { Button, Form, Input, Message } from 'semantic-ui-react';
 import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { Link } from 'react-router-dom';
 import React, { useContext, useState } from 'react';
 import { CreateHackathonData } from '../models/hackathon';
 import { ApiContext } from '../hooks/ApiContext';
+import Datetime from 'react-datetime';
 
 export function CreateHackathon() {
   const { enableWeb3 } = useMoralis();
@@ -13,7 +14,6 @@ export function CreateHackathon() {
   const [success, setSuccess] = useState('');
   const { setShowSpinner } = useContext(ApiContext);
   const { fetch } = useWeb3ExecuteFunction({
-    chain: process.env.REACT_APP_CHAIN_ID,
     abi: HackaABI.abi,
     contractAddress: HackaABI.address,
     functionName: 'createHackathon',
@@ -28,19 +28,20 @@ export function CreateHackathon() {
   };
   const [data, setData] = useState(defaultValues);
 
-  const handleMoralisError = (err) => {
+  const handleMoralisError = (err: string[] | Error | any) => {
     if (Array.isArray(err)) {
       err = err[0];
     }
 
-    setError(err.message || err.error || '' + err);
+    setError(err?.message || err?.error || '' + err);
   };
 
-  const handleMoralisSuccess = (result) => {
+  const handleMoralisSuccess = (result: any) => {
     setSuccess(result?.transactionHash);
   };
 
   const createHackathon = async (data: CreateHackathonData) => {
+    console.log('Creating', data);
     await fetch({
       params: {
         params: {
@@ -56,11 +57,19 @@ export function CreateHackathon() {
     });
   };
 
-  const handleChange = (e, { name, value }) => {
+  const handleChange = (e: any, { name, value }: any) => {
     if (name === 'judgingPeriod') {
       value = parseInt(value, 10);
     }
     setData({ ...data, [name]: value });
+  };
+
+  const handleStartDateChange = (v: Moment) => {
+    handleChange(null, { name: 'timestampStart', value: v.unix() });
+  };
+
+  const handleEndDateChange = (v: Moment) => {
+    handleChange(null, { name: 'timestampEnd', value: v.unix() });
   };
 
   const handleSubmit = async () => {
@@ -68,9 +77,9 @@ export function CreateHackathon() {
     try {
       setShowSpinner(true);
       await createHackathon(data);
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
-      setError(e.message || e.error || e.toString() || e);
+      setError(e?.message || e?.error || e?.toString() || "" + e);
     } finally {
       setShowSpinner(false);
     }
@@ -114,7 +123,7 @@ export function CreateHackathon() {
         <Form.Field>
           <label>
             Start date:
-            <Input name="timestampStart" value={data.timestampStart} onChange={handleChange} />
+            <Datetime value={new Date(1000 * data.timestampStart)} onChange={handleStartDateChange} />
           </label>
           <p className="form-help">
             Hackathon will commence at this date. You won't be able to change hackathon's metadata, add new prizes etc. after this date.
@@ -123,7 +132,7 @@ export function CreateHackathon() {
         <Form.Field>
           <label>
             End date:
-            <Input name="timestampEnd" value={data.timestampEnd} onChange={handleChange} />
+            <Datetime value={new Date(1000 * data.timestampEnd)} onChange={handleEndDateChange} />
           </label>
           <p className="form-help">Last moment for participants to send their submissions.</p>
         </Form.Field>
@@ -139,8 +148,6 @@ export function CreateHackathon() {
           Create a hackathon
         </Button>
       </Form>
-
-      <pre>{JSON.stringify(data, null, 2)}</pre>
     </>
   );
 }

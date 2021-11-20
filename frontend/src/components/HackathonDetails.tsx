@@ -4,10 +4,14 @@ import { List } from 'semantic-ui-react';
 import moment from 'moment';
 
 export interface HackathonDetailsProps {
-  hackathonMetadata: HackathonMetadata;
+  hackathonMetadata?: HackathonMetadata;
 }
 
 export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
+  if (!hackathonMetadata?.id?.toString()) {
+    return <></>;
+  }
+
   return (
     <>
       <h1>Hackathon details</h1>
@@ -18,7 +22,7 @@ export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
               ID:
             </List.Header>
             <List.Description>
-              {hackathonMetadata.id.toString()}
+              {hackathonMetadata?.id?.toString()}
             </List.Description>
           </List.Content>
         </List.Item>

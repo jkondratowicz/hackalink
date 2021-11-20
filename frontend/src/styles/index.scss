@@ -173,3 +173,22 @@ a {
   background: #b22020;
   color: $hk-white;
 }
+
+#hacka-dapp {
+  .rdtPicker {
+    background: $hk-blue-dark;
+    border-color: $hk-blue-light;
+
+    th, td {
+      border-color: $hk-blue-light;
+    }
+
+    td.rdtActive, td.rdtActive:hover {
+      background-color: $hk-blue-light;
+    }
+
+    td.rdtDay:hover, td.rdtHour:hover, td.rdtMinute:hover, td.rdtSecond:hover, .rdtTimeToggle:hover, thead tr:first-of-type th:hover, .rdtCounter .rdtBtn:hover {
+      background-color: $hk-blue-mid;
+    }
+  }
+}

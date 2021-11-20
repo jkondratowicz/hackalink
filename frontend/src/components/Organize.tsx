@@ -11,7 +11,7 @@ export function Organize() {
   const { Moralis, user } = useMoralis();
   const { setShowSpinner } = useContext(ApiContext);
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>(null);
+  const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>();
 
   const [hackathons, setHackathons] = useState<HackathonMetadata[]>([]);
   useEffect(() => {
@@ -62,11 +62,13 @@ export function Organize() {
           ))}
         </Table.Body>
       </Table>
-      <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
-        <Modal.Content inverted>
-          <HackathonDetails hackathonMetadata={selectedHackathon} />
-        </Modal.Content>
-      </Modal>
+      {
+        selectedHackathon && <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
+          <Modal.Content inverted>
+            <HackathonDetails hackathonMetadata={selectedHackathon} />
+          </Modal.Content>
+        </Modal>
+      }
     </Container>
   );
 }

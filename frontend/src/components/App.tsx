@@ -8,11 +8,12 @@ import { ApiContext } from '../hooks/ApiContext';
 import GlobalSpinner from './GlobalSpinner';
 import AppHeader from './AppHeader';
 import { Organize } from './Organize';
+import 'react-datetime/css/react-datetime.css';
 
 function App() {
   const [showSpinner, setShowSpinner] = React.useState(false);
   return (
-    <ApiContext.Provider value={ { showSpinner, setShowSpinner } }>
+    <ApiContext.Provider value={{ showSpinner, setShowSpinner }}>
       <div id="hacka-dapp" className="">
         <Router>
           <GlobalSpinner />
