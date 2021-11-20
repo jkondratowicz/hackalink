@@ -19,6 +19,19 @@ body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button {
   font-weight: 400;
 }
 
+a {
+  color: $hk-green-light;
+
+  &:hover {
+    color: $hk_green-dark;
+  }
+}
+
+.ui.main.container {
+  padding-top: 60px;
+  padding-bottom: 10px;
+}
+
 .ui.button {
   font-family: 'Share', sans-serif;;
   font-weight: 400;
@@ -56,12 +69,72 @@ body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button {
 .ui.inverted.menu {
   background: $hk-blue-dark;
   .item.logo {
-    padding: 0;
+    padding: 0 30px 0 0;
     background: $hk-blue-dark;
+
+    &:hover {
+      background: $hk-blue-dark;
+    }
 
     img {
       height: 40px;
       width: auto;
     }
+  }
+
+  a.item:hover {
+    background: $hk-blue-light;
+  }
+
+  .active.item {
+    background: $hk-blue-mid;
+
+    &.logo {
+      background: $hk-blue-dark;
+    }
+
+    &:hover {
+      background: $hk-blue-light;
+    }
+  }
+}
+
+.ui.pink.button, .ui.pink.buttons .button {
+  background-color: $hk-purple;
+  color: $hk-white;
+
+  &:hover, &:focus {
+    background-color: darken($hk-purple, 4);
+    color: $hk-white;
+  }
+
+  &:active {
+    background-color: lighten($hk-purple, 4);
+    color: $hk-white;
+  }
+}
+
+.ui.green.button, .ui.green.buttons .button {
+  background-color: $hk-green-light;
+  color: $hk-blue-dark;
+
+  &:hover, &:focus {
+    background-color: darken($hk-green-light, 4);
+    color: $hk-blue-dark;
+  }
+
+  &:active {
+    background-color: lighten($hk-green-light, 4);
+    color: $hk-blue-dark;
+  }
+}
+
+.ui.inverted.table {
+  th {
+    background-color: $hk-blue-dark;
+  }
+
+  td {
+    background-color: $hk-blue-light;
   }
 }

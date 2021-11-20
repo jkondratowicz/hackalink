@@ -36,6 +36,7 @@ contract Hacka is Ownable {
     mapping(address => uint[]) public s_organizerHackathons;
 
     event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart);
+    event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart);
 
     /**
      * @notice Deploy with the address of the LINK token
@@ -106,7 +107,7 @@ contract Hacka is Ownable {
         s_hackathons[_hackathonId].url = _url;
         s_hackathons[_hackathonId].judgingPeriod = _judgingPeriod;
 
-        // TODO emit event about hackathon being updated
+        emit HackathonChanged(_hackathonId, _name, _url, _timestampStart);
     }
 
     // TODO method to transfer hackathon ownership to another address (change organizer)
@@ -128,13 +129,16 @@ contract Hacka is Ownable {
 
     // TODO should use LINK or our own "Hackathon Token" ERC20, for now just use ETH
     function addPrize(
+        uint256 _amount,
         uint _hackathonId,
         string calldata _name,
         string calldata _description
     ) external payable returns (uint prizeId) {
+        require(msg.value == _amount);
+        require(s_hackathons[_hackathonId].stage == HackathonStage.NEW, "Can't add a prize to an ongoing or finished hackathon");
         require(s_hackathons[_hackathonId].organizer == msg.sender, "Only hackathon's organizer can add a prize");
         require(bytes(_name).length > 8, "Prize name must be at least 8 characters");
-        require(msg.value > 1 ether, "Minimum prize reward is 1 ETH");
+        require(msg.value > 1 ether, "Minimum prize reward is 1 ETH"); // TODO why so much????
 
         s_hackathons[_hackathonId].balance += msg.value;
 
@@ -161,6 +165,20 @@ contract Hacka is Ownable {
 
         s_prizes[_hackathonId][_prizeId].judges.push(_judge);
         // TODO emit event about judge being added
+    }
+
+    function getHackathonsByOrganizer(
+        address _organizer
+    ) external view returns (uint[] memory) {
+        return s_organizerHackathons[_organizer];
+    }
+
+    function getHackathonMetadata(uint _hackathonId) external view returns (HackathonMetadata memory) {
+        return s_hackathons[_hackathonId];
+    }
+
+    function getHackathonPrizes(uint _hackathonId) external view returns (HackathonPrize[] memory) {
+        return s_prizes[_hackathonId];
     }
 
     /**

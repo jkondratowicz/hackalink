@@ -1,10 +1,9 @@
 import { ByMoralis, useMoralis } from 'react-moralis';
-import { Button, Container } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import React from 'react';
-import makeBlockie from 'ethereum-blockies-base64';
 
 export function HomePage() {
-  const { isAuthenticated, user, logout } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
   return (
     <Container>
       {isAuthenticated && user ? (

@@ -7,6 +7,7 @@ import { HomePage } from './HomePage';
 import { ApiContext } from '../hooks/ApiContext';
 import GlobalSpinner from './GlobalSpinner';
 import AppHeader from './AppHeader';
+import { Organize } from './Organize';
 
 function App() {
   const [showSpinner, setShowSpinner] = React.useState(false);
@@ -20,7 +21,8 @@ function App() {
             <div className="ui main container">
               <Switch>
                 <Route path="/" component={HomePage} exact />
-                <PrivateRoute path="/create-hackathon" component={CreateHackathon} exact />
+                <PrivateRoute path="/organize" component={Organize} exact />
+                <PrivateRoute path="/organize/create" component={CreateHackathon} exact />
                 <Route component={Page404} />
               </Switch>
             </div>

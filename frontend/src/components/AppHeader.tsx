@@ -20,15 +20,6 @@ function AppHeader() {
         { isAuthenticated ? (<>
           <NavLink
             exact
-            to="/create-hackathon"
-            className="item"
-            activeClassName="active"
-          >
-            <Icon name="add circle" size="small" />
-            Create hackathon
-          </NavLink>
-          <NavLink
-            exact
             to="/organize"
             className="item"
             activeClassName="active"
@@ -38,7 +29,7 @@ function AppHeader() {
           </NavLink>
           <NavLink
             exact
-            to="/organize"
+            to="/judge"
             className="item"
             activeClassName="active"
           >
@@ -47,7 +38,7 @@ function AppHeader() {
           </NavLink>
           <NavLink
             exact
-            to="/organize"
+            to="/participate"
             className="item"
             activeClassName="active"
           >
