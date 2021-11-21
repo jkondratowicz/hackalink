@@ -4,9 +4,9 @@ import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
 import moment, { Moment } from 'moment';
 import { Link } from 'react-router-dom';
 import React, { useContext, useState } from 'react';
-import { CreateHackathonData } from '../models/hackathon';
 import { ApiContext } from '../hooks/ApiContext';
 import Datetime from 'react-datetime';
+import { CreateHackathonData } from '../models/hackathon.types';
 
 export function CreateHackathon() {
   const { enableWeb3 } = useMoralis();

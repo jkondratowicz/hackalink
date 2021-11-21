@@ -31,6 +31,8 @@ a {
 
 .ui.list .list > .item .header, .ui.list > .item .header {
   color: $hk-green-light;
+  font-size: 16px;
+  line-height: 18px;
 }
 
 .ui.list .list > .item .description, .ui.list > .item .description {
@@ -191,4 +193,11 @@ a {
       background-color: $hk-blue-mid;
     }
   }
+
 }
+
+.ui.inverted.segment, .ui.primary.inverted.segment {
+  background-color: $hk-blue-dark;
+  border: 1px solid $hk-blue-light;
+}
+

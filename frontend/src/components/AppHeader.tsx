@@ -12,7 +12,7 @@ function AppHeader() {
         <NavLink exact to="/" className="item logo" activeClassName="active">
           <img src={logo} alt="Hacka.link" />
         </NavLink>
-        {isAuthenticated ? (
+        {isAuthenticated && (
           <>
             <NavLink to="/organize" className="item" activeClassName="active">
               <Icon name="cogs" size="small" />
@@ -27,8 +27,6 @@ function AppHeader() {
               Participate
             </NavLink>
           </>
-        ) : (
-          <></>
         )}
         <AuthStatus />
       </div>

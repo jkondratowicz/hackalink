@@ -1,47 +1,8 @@
 import MoralisType from 'moralis';
-import BigNumber from 'bignumber.js';
 import * as HackaABI from '../contracts/Hacka.json';
+import { HackathonMetadata, HackathonPrize } from './hackathon.types';
 
-export enum HackathonStage {
-  NEW,
-  STARTED,
-  JUDGING,
-  FINALIZED,
-}
-
-export class HackathonMetadata {
-  id: BigNumber;
-  organizer: string;
-  timestampStart: number;
-  timestampEnd: number;
-  judgingPeriod: number;
-  stage: HackathonStage;
-  name: string;
-  url: string;
-  balance: BigNumber;
-
-  constructor(hackathonId: string, metadata: string[]) {
-    this.id = new BigNumber(hackathonId);
-    this.organizer = metadata[0];
-    this.timestampStart = parseInt(metadata[1], 10);
-    this.timestampEnd = parseInt(metadata[2], 10);
-    this.judgingPeriod = parseInt(metadata[3], 10);
-    this.stage = parseInt(metadata[4], 10) as HackathonStage;
-    this.name = metadata[5];
-    this.url = metadata[6];
-    this.balance = new BigNumber(metadata[7]);
-  }
-}
-
-export interface CreateHackathonData {
-  timestampStart: number;
-  timestampEnd: number;
-  judgingPeriod: number;
-  name: string;
-  url: string;
-}
-
-export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: string): Promise<any[]> {
+export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: string): Promise<HackathonMetadata[]> {
   try {
     const options = {
       chain: process.env.REACT_APP_CHAIN_ID,
@@ -88,5 +49,40 @@ export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: 
     // TODO def needs better error handling...
     console.error(e);
     return [];
+  }
+}
+
+export async function getHackathonPrizes(Moralis: MoralisType, hackathon: HackathonMetadata): Promise<HackathonMetadata> {
+  try {
+    const options = {
+      chain: process.env.REACT_APP_CHAIN_ID,
+      address: HackaABI.address,
+      function_name: 'getHackathonPrizes',
+      abi: HackaABI.abi,
+      params: {
+        _hackathonId: hackathon.id,
+      },
+    };
+    // @ts-ignore
+    const prizes = await Moralis.Web3API.native.runContractFunction(options);
+    if (!prizes.length) {
+      return hackathon;
+    }
+
+    hackathon.prizes = [];
+
+    for (let i = 0; i < prizes.length; i++) {
+      const prize = prizes[i];
+      if (!Array.isArray(prize) || prize.length !== 6) {
+        continue;
+      }
+      hackathon.prizes.push(new HackathonPrize(i, prize));
+    }
+
+    return hackathon;
+  } catch (e) {
+    // TODO def needs better error handling...
+    console.error(e);
+    return hackathon;
   }
 }
