@@ -10,7 +10,7 @@ export default function AuthStatus() {
     <div className="right menu">
       {isAuthenticated && user ? (
         <>
-          <a onClick={() => logout()} className="ui item">
+          <a onClick={(e) => { e.preventDefault(); logout(); }} className="ui item" href="/">
             <Icon name="sign-out" size="small" />
             Sign out
           </a>

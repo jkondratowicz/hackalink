@@ -82,7 +82,7 @@ export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
               URL:
             </List.Header>
             <List.Description>
-              <a href={hackathonMetadata.url} target="_blank">{hackathonMetadata.url}</a>
+              <a href={hackathonMetadata.url} target="_blank" rel="noreferrer">{hackathonMetadata.url}</a>
             </List.Description>
           </List.Content>
         </List.Item>

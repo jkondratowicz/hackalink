@@ -26,7 +26,7 @@ export function Organize() {
       .finally(() => {
         setShowSpinner(false);
       });
-  }, [user]);
+  }, [user, Moralis, setShowSpinner]);
   return (
     <Container>
       <Link to="/organize/create">
@@ -64,7 +64,7 @@ export function Organize() {
       </Table>
       {
         selectedHackathon && <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
-          <Modal.Content inverted>
+          <Modal.Content>
             <HackathonDetails hackathonMetadata={selectedHackathon} />
           </Modal.Content>
         </Modal>

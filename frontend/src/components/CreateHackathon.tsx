@@ -64,11 +64,17 @@ export function CreateHackathon() {
     setData({ ...data, [name]: value });
   };
 
-  const handleStartDateChange = (v: Moment) => {
+  const handleStartDateChange = (v: string | Moment) => {
+    if (typeof v === 'string') {
+      v = moment(v);
+    }
     handleChange(null, { name: 'timestampStart', value: v.unix() });
   };
 
-  const handleEndDateChange = (v: Moment) => {
+  const handleEndDateChange = (v: string | Moment) => {
+    if (typeof v === 'string') {
+      v = moment(v);
+    }
     handleChange(null, { name: 'timestampEnd', value: v.unix() });
   };
 
