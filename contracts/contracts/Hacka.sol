@@ -130,7 +130,7 @@ contract Hacka is Ownable {
         require(bytes(_name).length <= 100, "Hackathon name must be at most 100 characters");
     }
 
-    // TODO should use LINK or our own "Hackathon Token" ERC20, for now just use ETH
+    // TODO should accept other tokens, or more specifically - "Hackathon Token" ERC20, for now just use ETH
     function addPrize(
         uint256 _amount,
         uint _hackathonId,
@@ -141,7 +141,7 @@ contract Hacka is Ownable {
         require(s_hackathons[_hackathonId].stage == HackathonStage.NEW, "Can't add a prize to an ongoing or finished hackathon");
         require(s_hackathons[_hackathonId].organizer == msg.sender, "Only hackathon's organizer can add a prize");
         require(bytes(_name).length > 8, "Prize name must be at least 8 characters");
-        require(msg.value > 1 ether, "Minimum prize reward is 1 ETH"); // TODO why so much????
+        require(msg.value > 0.001 ether, "Minimum prize reward is 0.001 ETH");
 
         s_hackathons[_hackathonId].balance += msg.value;
 

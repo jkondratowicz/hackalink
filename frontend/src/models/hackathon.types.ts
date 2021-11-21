@@ -60,3 +60,10 @@ export interface CreateHackathonData {
   name: string;
   url: string;
 }
+
+export interface AddPrizeData {
+  name: string;
+  description: string;
+  amount: number;
+  judges: string[];
+}

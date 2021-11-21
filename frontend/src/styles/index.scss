@@ -7,7 +7,7 @@ $hk-green-light: #04E8B6;
 
 $hk-purple: #9C1BC4;
 
-$hk-white: #EEE;
+$hk-white: #DDD;
 
 body {
   background-color: $hk-blue-mid;
@@ -17,6 +17,10 @@ body {
 body, h1, h2, h3, h4, h5, h6, p, div, span, strong, em, td, th, input, button, .ui.list .list > .item .header, .ui.list > .item .header, .ui.list .list > .item .description, .ui.list > .item .description, .ui.form .field > label {
   font-family: 'Share', sans-serif;
   font-weight: 400;
+}
+
+strong, b {
+  font-weight: 600;
 }
 
 a {
