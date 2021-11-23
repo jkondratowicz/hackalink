@@ -2,15 +2,23 @@ import React from 'react';
 import { Grid, List, Segment } from 'semantic-ui-react';
 import moment from 'moment';
 import { HackathonMetadata, HackathonStage } from '../models/hackathon.types';
+import { useMoralis } from 'react-moralis';
+import { AddJudge } from './AddJudge';
+import { useUtils } from '../hooks/Utils';
 
 export interface HackathonDetailsProps {
   hackathonMetadata?: HackathonMetadata;
 }
 
 export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
+  const { user } = useMoralis();
+  const { formatWei, areAddressesEqual } = useUtils();
+
   if (!hackathonMetadata?.id?.toString()) {
     return <></>;
   }
+
+  const isOrganizer = areAddressesEqual(user?.get('ethAddress'), hackathonMetadata?.organizer);
 
   return (
     <>
@@ -88,16 +96,17 @@ export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
                     <List.Item>
                       <List.Content>
                         <List.Header>Prize amount:</List.Header>
-                        <List.Description>{prize.reward.toString()} wei</List.Description>
+                        <List.Description>{formatWei(prize.reward)}</List.Description>
                       </List.Content>
                     </List.Item>
                     <List.Item>
                       <List.Content>
                         <List.Header>Judges:</List.Header>
-                        <List.Description>{prize.judges.join(", ")}</List.Description>
+                        <List.Description>{prize.judges.length ? prize.judges.join(", ") : 'No judges so far...'}</List.Description>
                       </List.Content>
                     </List.Item>
                   </List>
+                  {isOrganizer && <><hr /><AddJudge hackathonMetadata={hackathonMetadata} prize={prize} /></>}
                 </Segment>
               ))}
           </Grid.Column>

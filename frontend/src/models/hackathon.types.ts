@@ -65,5 +65,4 @@ export interface AddPrizeData {
   name: string;
   description: string;
   amount: number;
-  judges: string[];
 }

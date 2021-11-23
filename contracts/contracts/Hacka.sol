@@ -141,7 +141,7 @@ contract Hacka is Ownable {
         require(s_hackathons[_hackathonId].stage == HackathonStage.NEW, "Can't add a prize to an ongoing or finished hackathon");
         require(s_hackathons[_hackathonId].organizer == msg.sender, "Only hackathon's organizer can add a prize");
         require(bytes(_name).length > 8, "Prize name must be at least 8 characters");
-        require(msg.value > 0.001 ether, "Minimum prize reward is 0.001 ETH");
+        require(msg.value >= 0.0001 ether, "Minimum prize reward is 0.0001 ETH");
 
         s_hackathons[_hackathonId].balance += msg.value;
 

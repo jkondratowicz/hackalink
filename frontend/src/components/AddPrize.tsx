@@ -1,61 +1,60 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { HackathonDetailsProps } from './HackathonDetails';
-import { Button, Form, Input, Message, TextArea } from 'semantic-ui-react';
-import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
-import { ApiContext } from '../hooks/ApiContext';
+import { Button, Form, Icon, Input, Message, TextArea } from 'semantic-ui-react';
+import { useMoralis } from 'react-moralis';
 import * as HackaABI from '../contracts/Hacka.json';
 import { AddPrizeData } from '../models/hackathon.types';
-import { isValidAddress } from '../models/address';
 
 export function AddPrize({ hackathonMetadata }: HackathonDetailsProps) {
-  const { enableWeb3 } = useMoralis();
+  const { enableWeb3, Moralis } = useMoralis();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { setShowSpinner } = useContext(ApiContext);
-  const { fetch } = useWeb3ExecuteFunction({
-    abi: HackaABI.abi,
-    contractAddress: HackaABI.address,
-    functionName: 'createHackathon',
-  });
+  const [showSpinner, setShowSpinner] = useState(false);
 
   const defaultValues: AddPrizeData = {
     name: '',
     description: '',
-    amount: 1,
-    judges: [
-      ''
-    ],
+    amount: 100000,
   };
   const [data, setData] = useState(defaultValues);
 
   const handleMoralisError = (err: string[] | Error | any) => {
+    console.log(err);
     if (Array.isArray(err)) {
       err = err[0];
     }
 
     setError(err?.message || err?.error || '' + err);
+    setShowSpinner(false);
   };
 
   const handleMoralisSuccess = (result: any) => {
     setSuccess(result?.transactionHash);
+    setShowSpinner(false);
   };
 
   const addPrize = async (data: AddPrizeData) => {
     console.log('Creating', data);
-    // TODO actually can't add judges, must use another step...
-    // TODO actually send in MONEY
-    await fetch({
+    setError('');
+
+    const options = {
+      contractAddress: HackaABI.address,
+      abi: HackaABI.abi,
+      functionName: 'addPrize',
+      msgValue: data.amount * 1000000000,
       params: {
-        params: {
-          _amount: data.amount,
-          _hackathonId: hackathonMetadata?.id?.toString(),
-          _name: data.name.trim(),
-          _description: data.description.trim(),
-        },
+        _amount: data.amount * 1000000000,
+        _hackathonId: hackathonMetadata?.id?.toString(),
+        _name: data.name.trim(),
+        _description: data.description.trim(),
       },
-      onError: handleMoralisError,
-      onSuccess: handleMoralisSuccess,
-    });
+    };
+    try {
+      const tx = await (Moralis as any).executeFunction(options);
+      handleMoralisSuccess(tx);
+    } catch (e: any) {
+      handleMoralisError(e);
+    }
   };
 
   const handleChange = (e: any, { name, value }: any) => {
@@ -65,22 +64,6 @@ export function AddPrize({ hackathonMetadata }: HackathonDetailsProps) {
     setData({ ...data, [name]: value });
   };
 
-  const setJudgeAddress = (idx: number, value: string) => {
-    const newJudges = [...data.judges];
-    newJudges[idx] = value;
-    setData({
-      ...data,
-      judges: newJudges,
-    });
-  };
-
-  const addJudge = () => {
-    setData({
-      ...data,
-      judges: [...data.judges, ''],
-    });
-  };
-
   const handleSubmit = async () => {
     await enableWeb3();
     try {
@@ -88,19 +71,16 @@ export function AddPrize({ hackathonMetadata }: HackathonDetailsProps) {
         throw new Error('Name must be at least 8 characters long');
       }
       if (data.description.trim().length < 16) {
-        throw new Error('Description must be at least 8 characters long');
+        throw new Error('Description must be at least 16 characters long');
       }
-      if (data.amount < 1000000) {
-        throw new Error('Amount must be at least 1,000,000 gwei');
-      }
-      if (data.judges.filter(isValidAddress).length < 1) {
-        throw new Error('At least one valid judge address is needed');
+      if (data.amount < 100000) {
+        throw new Error('Amount must be at least 100,000 gwei');
       }
       setShowSpinner(true);
       await addPrize(data);
     } catch (e: any) {
       console.log(e);
-      setError(e?.message || e?.error || e?.toString() || "" + e);
+      setError(e?.message || e?.error || e?.toString() || '' + e);
     } finally {
       setShowSpinner(false);
     }
@@ -147,17 +127,6 @@ export function AddPrize({ hackathonMetadata }: HackathonDetailsProps) {
           </label>
           <p className="form-help">Describe who's eligible for this prize, what are the conditions to win it etc.</p>
         </Form.Field>
-        {
-          data.judges.map((judge: string, idx) => (
-            <Form.Field>
-              <label>
-                Wallet address of Judge {idx + 1}:
-                <Input name={"judge" + idx} value={judge} onChange={(_, { value }) => setJudgeAddress(idx, value)} />
-              </label>
-            </Form.Field>
-          ))
-        }
-        <Button color="blue" onClick={() => addJudge()}>Add another judge</Button>
         <Form.Field>
           <label>
             Prize reward in gwei:
@@ -165,8 +134,8 @@ export function AddPrize({ hackathonMetadata }: HackathonDetailsProps) {
           </label>
         </Form.Field>
 
-        <Button size="massive" color="pink">
-          Add this prize!
+        <Button size="massive" color="pink" disabled={showSpinner}>
+          {showSpinner ? <Icon name="spinner" loading /> : 'Add this prize!'}
         </Button>
       </Form>
     </>
