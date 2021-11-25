@@ -12,13 +12,11 @@ require('@appliedblockchain/chainlink-plugins-fund-link');
 
 require('dotenv').config();
 
-task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address, (await account.getBalance()).toString());
-  }
-});
+require('./tasks/accounts');
+require('./tasks/balance');
+require('./tasks/block-number');
+require('./tasks/transfer-ownership');
+require('./tasks/withdraw-link');
 
 module.exports = {
   defaultNetwork: 'hardhat',

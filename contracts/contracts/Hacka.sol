@@ -2,14 +2,18 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 
-contract Hacka is Ownable {
+interface KeeperCompatibleInterface {
+    function checkUpkeep(bytes calldata checkData) external returns (bool upkeepNeeded, bytes memory performData);
+
+    function performUpkeep(bytes calldata performData) external;
+}
+
+contract Hacka is Ownable, KeeperCompatibleInterface {
     bool private s_demoMode = false; // to be deleted
     uint private s_counter = 0;
-    LinkTokenInterface internal LinkToken;
 
-    enum HackathonStage { NEW, STARTED, JUDGING, FINALIZED }
+    enum HackathonStage {NEW, STARTED, JUDGING, FINALIZED}
 
     struct HackathonMetadata {
         address organizer;
@@ -23,32 +27,38 @@ contract Hacka is Ownable {
         // TODO cid for description
     }
 
+    struct HackathonSubmission {
+        address participant;
+        string name;
+        // TODO cid for description
+        uint hackathonId;
+        uint[] prizes;
+    }
+
     struct HackathonPrize {
         uint reward;
         address[] judges;
         string name;
         string description;
         address[] submissions;
+        mapping(uint => uint8) submissionScores;
+        mapping(address => bool) judgesVoted;
         address winner;
+        bool finalized;
     }
 
     mapping(uint => HackathonMetadata) public s_hackathons;
     mapping(uint => HackathonPrize[]) public s_prizes;
     mapping(address => uint[]) public s_organizerHackathons;
 
-    event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart);
-    event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart);
+    // todo emit rest of metadata on create,changed
+    event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
+    event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
+    event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousStage, HackathonStage newStage);
+    event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, uint[] prizes);
 
-    /**
-     * @notice Deploy with the address of the LINK token
-     * @notice @param _link The address of the LINK token
-     */
-    constructor(/*address _link*/) {
-        // LinkToken = LinkTokenInterface(_link);
-        // TODO should not be hardcoded
-        // TODO add hackathon ERC20 as well?
-        LinkToken = LinkTokenInterface(0xa36085F69e2889c224210F603D836748e7dC0088);
-    }
+    uint public immutable s_interval = 1 hours;
+    uint public s_lastTimeStamp;
 
     function createHackathon(
         uint _timestampStart,
@@ -80,7 +90,7 @@ contract Hacka is Ownable {
 
         s_organizerHackathons[msg.sender].push(hackathonId);
 
-        emit HackathonCreated(hackathonId, msg.sender, _name, _url, _timestampStart);
+        emit HackathonCreated(hackathonId, msg.sender, _name, _url, _timestampStart, _timestampEnd, _judgingPeriod);
 
         return hackathonId;
     }
@@ -110,7 +120,15 @@ contract Hacka is Ownable {
         s_hackathons[_hackathonId].url = _url;
         s_hackathons[_hackathonId].judgingPeriod = _judgingPeriod;
 
-        emit HackathonChanged(_hackathonId, _name, _url, _timestampStart);
+        emit HackathonChanged(_hackathonId, _name, _url, _timestampStart, _timestampStart, _judgingPeriod);
+    }
+
+    function updateHackathonStage(
+        uint _hackathonId,
+        HackathonStage _newStage
+    ) internal {
+        emit HackathonStageChanged(_hackathonId, s_hackathons[_hackathonId].stage, _newStage);
+        s_hackathons[_hackathonId].stage = _newStage;
     }
 
     // TODO method to transfer hackathon ownership to another address (change organizer)
@@ -184,13 +202,6 @@ contract Hacka is Ownable {
         return s_prizes[_hackathonId];
     }
 
-    /**
-     * @notice Allows the owner to withdraw any LINK balance on the contract
-     */
-    function withdrawLink() public onlyOwner {
-        require(LinkToken.transfer(msg.sender, LinkToken.balanceOf(address(this))), "Unable to transfer");
-    }
-
     // TODO delete for actual use! demo mode is to be able to skip date checks to create a demo hackathon
     function enableDemoMode() public onlyOwner {
         s_demoMode = true;
@@ -199,5 +210,55 @@ contract Hacka is Ownable {
     // TODO delete for actual use! demo mode is to be able to skip date checks to create a demo hackathon
     function disableDemoMode() public onlyOwner {
         s_demoMode = false;
+    }
+
+    function checkUpkeep(bytes calldata /* checkData */) external view override returns (bool upkeepNeeded, bytes memory /* performData */) {
+        bool intervalPassed = s_demoMode || (block.timestamp - s_lastTimeStamp) > s_interval;
+        bool hasHackathons = s_counter > 0;
+
+        // TODO optimize - return IDs of hackathons that need to have their status changed! this way performUpkeep won't have to iterate all hackathons
+        bool hasHackathonsPendingChange = false;
+        for (uint id = 0; id < s_counter; id++) {
+            if (s_hackathons[id].stage == HackathonStage.FINALIZED) {
+                continue;
+            }
+
+            if (s_hackathons[id].stage == HackathonStage.NEW && block.timestamp > s_hackathons[id].timestampStart) {
+                hasHackathonsPendingChange = true;
+                break;
+            }
+
+            if (s_hackathons[id].stage == HackathonStage.STARTED && block.timestamp > s_hackathons[id].timestampEnd) {
+                hasHackathonsPendingChange = true;
+                break;
+            }
+
+            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 days)) {
+                hasHackathonsPendingChange = true;
+                break;
+            }
+        }
+
+        upkeepNeeded = intervalPassed && hasHackathons && hasHackathonsPendingChange;
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        s_lastTimeStamp = block.timestamp;
+        for (uint id = 0; id < s_counter; id++) {
+            if (s_hackathons[id].stage == HackathonStage.NEW && block.timestamp > s_hackathons[id].timestampStart) {
+                updateHackathonStage(id, HackathonStage.STARTED);
+                continue;
+            }
+
+            if (s_hackathons[id].stage == HackathonStage.STARTED && block.timestamp > s_hackathons[id].timestampEnd) {
+                updateHackathonStage(id, HackathonStage.JUDGING);
+                continue;
+            }
+
+            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 days)) {
+                updateHackathonStage(id, HackathonStage.FINALIZED);
+                // TODO finalize = payout
+            }
+        }
     }
 }

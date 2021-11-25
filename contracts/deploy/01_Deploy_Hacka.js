@@ -3,6 +3,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deployer } = await getNamedAccounts();
 
   log('----------------------------------------------------');
+  log('From account: ' + deployer?.address);
   const Hacka = await deploy('Hacka', {
     from: deployer,
     log: true,
