@@ -14,6 +14,10 @@ function AppHeader() {
         </NavLink>
         {isAuthenticated && (
           <>
+            <NavLink to="/participate" className="item" activeClassName="active">
+              <Icon name="code" size="small" />
+              Participate
+            </NavLink>
             <NavLink to="/organize" className="item" activeClassName="active">
               <Icon name="cogs" size="small" />
               Organize
@@ -21,10 +25,6 @@ function AppHeader() {
             <NavLink to="/judge" className="item" activeClassName="active">
               <Icon name="gavel" size="small" />
               Judge
-            </NavLink>
-            <NavLink to="/participate" className="item" activeClassName="active">
-              <Icon name="code" size="small" />
-              Participate
             </NavLink>
           </>
         )}

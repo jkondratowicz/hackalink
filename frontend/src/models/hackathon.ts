@@ -1,6 +1,7 @@
 import MoralisType from 'moralis';
 import * as HackaABI from '../contracts/Hacka.json';
 import { HackathonMetadata, HackathonPrize } from './hackathon.types';
+import moment from 'moment';
 
 export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: string): Promise<HackathonMetadata[]> {
   try {
@@ -54,29 +55,28 @@ export async function getHackathonsByOrganizer(Moralis: MoralisType, organizer: 
 
 export async function getHackathonPrizes(Moralis: MoralisType, hackathon: HackathonMetadata): Promise<HackathonMetadata> {
   try {
-    const options = {
-      chain: process.env.REACT_APP_CHAIN_ID,
-      address: HackaABI.address,
-      function_name: 'getHackathonPrizes',
-      abi: HackaABI.abi,
-      params: {
-        _hackathonId: hackathon.id,
-      },
-    };
-    // @ts-ignore
-    const prizes = await Moralis.Web3API.native.runContractFunction(options);
-    if (!prizes.length) {
-      return hackathon;
+    const HackathonPrizeCreated = Moralis.Object.extend("HackathonPrizeCreated");
+    const HackathonPrizeJudgeAdded = Moralis.Object.extend("HackathonPrizeJudgeAdded");
+    const query = new Moralis.Query(HackathonPrizeCreated);
+    query.equalTo('hackathonId', hackathon.id);
+    const results: any[] = await query.find();
+
+    if (!hackathon.prizes) {
+      hackathon.prizes = [];
     }
 
-    hackathon.prizes = [];
+    for (const row of results) {
+      const judgeQuery = new Moralis.Query(HackathonPrizeJudgeAdded);
+      judgeQuery.equalTo('hackathonId', hackathon.id);
+      judgeQuery.equalTo('prizeId', row.get('prizeId'));
+      const judges = (await judgeQuery.find()).map((row) => row.get('judge'));
 
-    for (let i = 0; i < prizes.length; i++) {
-      const prize = prizes[i];
-      if (!Array.isArray(prize) || prize.length !== 6) {
-        continue;
-      }
-      hackathon.prizes.push(new HackathonPrize(i, prize));
+      hackathon.prizes.push(new HackathonPrize(row.get('prizeId'), [
+        row.get('reward'),
+        judges,
+        row.get('name'),
+        row.get('description'),
+      ]));
     }
 
     return hackathon;
@@ -84,5 +84,32 @@ export async function getHackathonPrizes(Moralis: MoralisType, hackathon: Hackat
     // TODO def needs better error handling...
     console.error(e);
     return hackathon;
+  }
+}
+
+
+export async function getAllHackathons(Moralis: MoralisType): Promise<HackathonMetadata[]> {
+  try {
+    const HackathonMetadataMoralis = Moralis.Object.extend("HackathonMetadata");
+    const query = new Moralis.Query(HackathonMetadataMoralis);
+    const results: any[] = await query.find();
+    const response = [];
+    for (const row of results) {
+      response.push(new HackathonMetadata(row.get('hackathonId'), [
+        row.get('organizer'),
+        moment(row.get('timestampStart')).unix(),
+        moment(row.get('timestampEnd')).unix(),
+        row.get('judgingPeriod'),
+        row.get('stage'),
+        row.get('name'),
+        row.get('url'),
+      ]));
+    }
+
+    return response;
+  } catch (e) {
+    // TODO def needs better error handling...
+    console.error(e);
+    return [];
   }
 }

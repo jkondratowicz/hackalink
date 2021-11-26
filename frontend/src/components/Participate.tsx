@@ -1,30 +1,22 @@
 import { useMoralis } from 'react-moralis';
-import { Button, Container, Icon, Modal, Table } from 'semantic-ui-react';
+import { Button, Container, Modal, Table } from 'semantic-ui-react';
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getHackathonPrizes, getHackathonsByOrganizer } from '../models/hackathon';
+import { getHackathonPrizes, getAllHackathons } from '../models/hackathon';
 import { ApiContext } from '../hooks/ApiContext';
 import moment from 'moment';
 import { HackathonDetails } from './HackathonDetails';
 import { HackathonMetadata, HackathonStage } from '../models/hackathon.types';
-import { AddPrize } from './AddPrize';
 
-export function Organize() {
+export function Participate() {
   const { Moralis, user } = useMoralis();
   const { setShowSpinner } = useContext(ApiContext);
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [modalPrizeOpen, setModalPrizeOpen] = React.useState(false);
-  const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>();
-
   const [hackathons, setHackathons] = useState<HackathonMetadata[]>([]);
+  const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>();
   useEffect(() => {
-    if (!user || !user.get('ethAddress')) {
-      return;
-    }
-
     setShowSpinner(true);
 
-    getHackathonsByOrganizer(Moralis, user.get('ethAddress'))
+    getAllHackathons(Moralis)
       .then(setHackathons)
       .finally(() => {
         setShowSpinner(false);
@@ -46,20 +38,14 @@ export function Organize() {
     }
   };
 
-  const addPrize = (row: HackathonMetadata) => {
-    setSelectedHackathon(row);
-    setModalPrizeOpen(true);
+  const submitProject = (row: HackathonMetadata) => {
+    // TODO
+    console.log(row);
   };
 
   return (
     <Container>
-      <Link to="/organize/create">
-        <Button color="pink">
-          <Icon name="add circle" size="small" />
-          Create a new hackathon
-        </Button>
-      </Link>
-      <h1>List of hackathons that you're an organizer of:</h1>
+      <h1>List of all hackathons:</h1>
       <Table celled inverted>
         <Table.Header>
           <Table.Row>
@@ -81,7 +67,7 @@ export function Organize() {
               <Table.Cell>{moment(row.timestampEnd * 1000).format('YYYY-MM-DD HH:mm')}</Table.Cell>
               <Table.Cell>
                 <Button color="green" onClick={() => { showDetails(row); }}>Show details</Button>
-                { (row.stage === HackathonStage.NEW) && <Button color="pink" onClick={() => { addPrize(row); }}>Add prize</Button> }
+                { (row.stage === HackathonStage.STARTED) && <Button color="pink" onClick={() => { submitProject(row); }}>Submit a project</Button> }
               </Table.Cell>
             </Table.Row>
           ))}
@@ -91,13 +77,6 @@ export function Organize() {
         selectedHackathon && <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
           <Modal.Content>
             <HackathonDetails hackathonMetadata={selectedHackathon} />
-          </Modal.Content>
-        </Modal>
-      }
-      {
-        selectedHackathon && <Modal onClose={() => setModalPrizeOpen(false)} onOpen={() => setModalPrizeOpen(true)} open={modalPrizeOpen}>
-          <Modal.Content>
-            <AddPrize hackathonMetadata={selectedHackathon} />
           </Modal.Content>
         </Modal>
       }

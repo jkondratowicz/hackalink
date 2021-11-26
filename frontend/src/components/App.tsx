@@ -8,6 +8,7 @@ import { ApiContext } from '../hooks/ApiContext';
 import GlobalSpinner from './GlobalSpinner';
 import AppHeader from './AppHeader';
 import { Organize } from './Organize';
+import { Participate } from './Participate';
 import 'react-datetime/css/react-datetime.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <div className="ui main container">
               <Switch>
                 <Route path="/" component={HomePage} exact />
+                <PrivateRoute path="/participate" component={Participate} exact />
                 <PrivateRoute path="/organize" component={Organize} exact />
                 <PrivateRoute path="/organize/create" component={CreateHackathon} exact />
                 <Route component={Page404} />
