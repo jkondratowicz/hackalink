@@ -40,7 +40,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         address[] judges;
         string name;
         string description;
-        address[] submissions;
+        uint[] submissions;
         mapping(uint => uint8) submissionScores;
         mapping(address => bool) judgesVoted;
         address winner;
@@ -49,13 +49,15 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
 
     mapping(uint => HackathonMetadata) public s_hackathons;
     mapping(uint => HackathonPrize[]) public s_prizes;
+    mapping(uint => HackathonSubmission[]) public s_submissions;
     mapping(address => uint[]) public s_organizerHackathons;
 
-    // todo emit rest of metadata on create,changed
     event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousStage, HackathonStage newStage);
     event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, uint[] prizes);
+    event HackathonPrizeCreated(uint indexed hackathonId, uint indexed prizeId, uint reward, string name, string description);
+    event HackathonPrizeJudgeAdded(uint indexed hackathonId, uint indexed prizeId, address judge);
 
     uint public immutable s_interval = 1 hours;
     uint public s_lastTimeStamp;
@@ -163,17 +165,17 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
 
         s_hackathons[_hackathonId].balance += msg.value;
 
-        HackathonPrize memory prize;
+        uint prizeIdx = s_prizes[_hackathonId].length;
+        s_prizes[_hackathonId].push();
+
+        HackathonPrize storage prize = s_prizes[_hackathonId][prizeIdx];
         prize.reward = msg.value;
         prize.name = _name;
         prize.description = _description;
 
-        prizeId = s_prizes[_hackathonId].length;
-        s_prizes[_hackathonId].push(prize);
+        emit HackathonPrizeCreated(_hackathonId, prizeIdx, _amount, _name, _description);
 
-        // TODO emit event about prize being created
-
-        return prizeId;
+        return prizeIdx;
     }
 
     function addJudge(
@@ -185,7 +187,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         require(s_prizes[_hackathonId][_prizeId].reward > 0, "Prize not found");
 
         s_prizes[_hackathonId][_prizeId].judges.push(_judge);
-        // TODO emit event about judge being added
+        emit HackathonPrizeJudgeAdded(_hackathonId, _prizeId, _judge);
     }
 
     function getHackathonsByOrganizer(
@@ -196,10 +198,6 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
 
     function getHackathonMetadata(uint _hackathonId) external view returns (HackathonMetadata memory) {
         return s_hackathons[_hackathonId];
-    }
-
-    function getHackathonPrizes(uint _hackathonId) external view returns (HackathonPrize[] memory) {
-        return s_prizes[_hackathonId];
     }
 
     // TODO delete for actual use! demo mode is to be able to skip date checks to create a demo hackathon
@@ -260,5 +258,32 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
                 // TODO finalize = payout
             }
         }
+    }
+
+    function submitProject(
+        uint _hackathonId,
+        string calldata _name,
+        uint[] calldata _prizes // add cid
+    ) external {
+        require(s_hackathons[_hackathonId].stage == HackathonStage.STARTED, "Hackathon doesn't accept submissions at this stage");
+        require(bytes(_name).length >= 4, "Submission name must be at least 4 characters");
+        require(_prizes.length >= 1, "You must apply for at least one prize");
+        for (uint prizeIdx = 0; prizeIdx < _prizes.length; prizeIdx++) {
+            require(_prizes[prizeIdx] < s_prizes[_hackathonId].length, "One of the prizes you applied for does not exist");
+        }
+
+        uint submissionId = s_submissions[_hackathonId].length;
+        s_submissions[_hackathonId].push();
+
+        HackathonSubmission storage submission = s_submissions[_hackathonId][submissionId];
+        submission.participant = msg.sender;
+        submission.name = _name;
+        submission.hackathonId = _hackathonId;
+        for (uint prizeIdx = 0; prizeIdx < _prizes.length; prizeIdx++) {
+            submission.prizes.push(_prizes[prizeIdx]);
+            s_prizes[_hackathonId][_prizes[prizeIdx]].submissions.push(submissionId);
+        }
+
+        emit HackathonSubmissionCreated(submissionId, _hackathonId, msg.sender, _name, _prizes);
     }
 }

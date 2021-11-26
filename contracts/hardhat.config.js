@@ -16,7 +16,7 @@ require('./tasks/accounts');
 require('./tasks/balance');
 require('./tasks/block-number');
 require('./tasks/transfer-ownership');
-require('./tasks/withdraw-link');
+require('./tasks/enable-demo-mode');
 
 module.exports = {
   defaultNetwork: 'hardhat',

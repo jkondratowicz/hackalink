@@ -1,0 +1,258 @@
+event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
+
+HackathonCreated
+HackathonCreated(uint,address,string,string,uint,uint,uint8)
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "address",
+      "name": "organizer",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "url",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "timestampStart",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "timestampEnd",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint8",
+      "name": "judgingPeriod",
+      "type": "uint8"
+    }
+  ],
+  "name": "HackathonCreated",
+  "type": "event"
+}
+
+----------------------------------------------------------------
+event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
+
+HackathonChanged
+HackathonChanged(uint,string,string,uint,uint,uint8)
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "url",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "timestampStart",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "timestampEnd",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint8",
+      "name": "judgingPeriod",
+      "type": "uint8"
+    }
+  ],
+  "name": "HackathonChanged",
+  "type": "event"
+}
+
+----------------------------------------------------------------
+event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousStage, HackathonStage newStage);
+
+HackathonStageChanged
+HackathonStageChanged(uint,uint8,uint8)
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "enum Hacka.HackathonStage",
+      "name": "previousStage",
+      "type": "uint8"
+    },
+    {
+      "indexed": false,
+      "internalType": "enum Hacka.HackathonStage",
+      "name": "newStage",
+      "type": "uint8"
+    }
+  ],
+  "name": "HackathonStageChanged",
+  "type": "event"
+}
+
+----------------------------------------------------------------
+event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, uint[] prizes);
+
+HackathonSubmissionCreated
+HackathonSubmissionCreated(uint,uint,address,string,uint[])
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "submissionId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "address",
+      "name": "participant",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256[]",
+      "name": "prizes",
+      "type": "uint256[]"
+    }
+  ],
+  "name": "HackathonSubmissionCreated",
+  "type": "event"
+}
+
+----------------------------------------------------------------
+event HackathonPrizeCreated(uint indexed hackathonId, uint indexed prizeId, uint reward, string name, string description);
+
+HackathonPrizeCreated
+HackathonPrizeCreated(uint,uint,uint,string,string)
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "prizeId",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "reward",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "description",
+      "type": "string"
+    }
+  ],
+  "name": "HackathonPrizeCreated",
+  "type": "event"
+}
+
+----------------------------------------------------------------
+event HackathonPrizeJudgeAdded(uint indexed hackathonId, uint indexed prizeId, address judge);
+
+HackathonPrizeJudgeAdded
+HackathonPrizeJudgeAdded(uint,uint,address);
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "prizeId",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "address",
+      "name": "judge",
+      "type": "address"
+    }
+  ],
+  "name": "HackathonPrizeJudgeAdded",
+  "type": "event"
+}
+
+----------------------------------------------------------------
