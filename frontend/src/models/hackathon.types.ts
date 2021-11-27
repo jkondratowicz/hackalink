@@ -54,6 +54,22 @@ export class HackathonMetadata {
   }
 }
 
+export class HackathonSubmission {
+  id: BigNumber;
+  participant: string;
+  name: string;
+  description: string;
+  hackathonId: BigNumber;
+
+  constructor(submissionId: string, metadata: string[]) {
+    this.id = new BigNumber(submissionId);
+    this.participant = metadata[0];
+    this.name = metadata[1];
+    this.description = metadata[2];
+    this.hackathonId = new BigNumber(metadata[3]);
+  }
+}
+
 export interface CreateHackathonData {
   timestampStart: number;
   timestampEnd: number;
