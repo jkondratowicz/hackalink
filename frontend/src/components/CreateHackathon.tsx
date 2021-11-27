@@ -24,7 +24,7 @@ export function CreateHackathon() {
     timestampEnd: moment().add(28, 'days').unix(),
     name: '',
     url: 'https://',
-    judgingPeriod: 3,
+    judgingPeriod: 72,
   };
   const [data, setData] = useState(defaultValues);
 
@@ -144,7 +144,7 @@ export function CreateHackathon() {
         </Form.Field>
         <Form.Field>
           <label>
-            Judging period (days):
+            Judging period (hours):
             <Input name="judgingPeriod" value={data.judgingPeriod} onChange={handleChange} type="number" />
           </label>
           <p className="form-help">How long will the judges have to review and score all submissions.</p>

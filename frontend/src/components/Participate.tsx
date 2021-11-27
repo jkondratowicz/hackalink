@@ -6,11 +6,13 @@ import { ApiContext } from '../hooks/ApiContext';
 import moment from 'moment';
 import { HackathonDetails } from './HackathonDetails';
 import { HackathonMetadata, HackathonStage } from '../models/hackathon.types';
+import { SubmitProject } from './SubmitProject';
 
 export function Participate() {
   const { Moralis, user } = useMoralis();
   const { setShowSpinner } = useContext(ApiContext);
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalSubmitOpen, setModalSubmitOpen] = React.useState(false);
   const [hackathons, setHackathons] = useState<HackathonMetadata[]>([]);
   const [selectedHackathon, setSelectedHackathon] = React.useState<HackathonMetadata>();
   useEffect(() => {
@@ -23,24 +25,27 @@ export function Participate() {
       });
   }, [user, Moralis, setShowSpinner]);
 
-  const showDetails = (row: HackathonMetadata) => {
+  const decorateWithPrizes = async (row: HackathonMetadata) => {
     setShowSpinner(true);
     setSelectedHackathon(row);
 
     if (row.prizes) {
       setShowSpinner(false);
-      setModalOpen(true);
     } else {
-      getHackathonPrizes(Moralis, row).finally(() => {
+      return getHackathonPrizes(Moralis, row).finally(() => {
         setShowSpinner(false);
-        setModalOpen(true);
       });
     }
   };
 
-  const submitProject = (row: HackathonMetadata) => {
-    // TODO
-    console.log(row);
+  const showDetails = async (row: HackathonMetadata) => {
+    await decorateWithPrizes(row);
+    setModalOpen(true);
+  };
+
+  const submitProject = async (row: HackathonMetadata) => {
+    await decorateWithPrizes(row);
+    setModalSubmitOpen(true);
   };
 
   return (
@@ -77,6 +82,13 @@ export function Participate() {
         selectedHackathon && <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen}>
           <Modal.Content>
             <HackathonDetails hackathonMetadata={selectedHackathon} />
+          </Modal.Content>
+        </Modal>
+      }
+      {
+        selectedHackathon && <Modal onClose={() => setModalSubmitOpen(false)} onOpen={() => setModalSubmitOpen(true)} open={modalSubmitOpen}>
+          <Modal.Content>
+            <SubmitProject hackathonMetadata={selectedHackathon} />
           </Modal.Content>
         </Modal>
       }

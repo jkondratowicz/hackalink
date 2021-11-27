@@ -136,10 +136,10 @@ HackathonStageChanged(uint,uint8,uint8)
 }
 
 ----------------------------------------------------------------
-event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, uint[] prizes);
+event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name);
 
 HackathonSubmissionCreated
-HackathonSubmissionCreated(uint,uint,address,string,uint[])
+HackathonSubmissionCreated(uint,uint,address,string)
 
 {
   "anonymous": false,
@@ -167,15 +167,40 @@ HackathonSubmissionCreated(uint,uint,address,string,uint[])
       "internalType": "string",
       "name": "name",
       "type": "string"
-    },
-    {
-      "indexed": false,
-      "internalType": "uint256[]",
-      "name": "prizes",
-      "type": "uint256[]"
     }
   ],
   "name": "HackathonSubmissionCreated",
+  "type": "event"
+}
+----------------------------------------------------------------
+event HackathonSubmissionAddedPrize(uint indexed submissionId, uint indexed hackathonId, uint indexed prizeId);
+
+HackathonSubmissionAddedPrize
+HackathonSubmissionAddedPrize(uint,uint,uint)
+
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "submissionId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "hackathonId",
+      "type": "uint256"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "prizeId",
+      "type": "uint256"
+    }
+  ],
+  "name": "HackathonSubmissionAddedPrize",
   "type": "event"
 }
 

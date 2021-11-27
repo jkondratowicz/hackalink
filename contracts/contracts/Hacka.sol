@@ -9,6 +9,7 @@ interface KeeperCompatibleInterface {
     function performUpkeep(bytes calldata performData) external;
 }
 
+// TODO refactor the whole thing to have a Hackathon factory and one contract per Hackathon
 contract Hacka is Ownable, KeeperCompatibleInterface {
     bool private s_demoMode = false; // to be deleted
     uint private s_counter = 0;
@@ -28,9 +29,9 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
     }
 
     struct HackathonSubmission {
-        address participant;
+        address payable participant;
         string name;
-        // TODO cid for description
+        string description; // TODO cid for description...
         uint hackathonId;
         uint[] prizes;
     }
@@ -42,8 +43,9 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         string description;
         uint[] submissions;
         mapping(uint => uint8) submissionScores;
-        mapping(address => bool) judgesVoted;
-        address winner;
+        mapping(address => bool) isJudge;
+        mapping(address => bool) alreadyVoted;
+        address payable winner;
         bool finalized;
     }
 
@@ -55,7 +57,8 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
     event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousStage, HackathonStage newStage);
-    event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, uint[] prizes);
+    event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name);
+    event HackathonSubmissionAddedPrize(uint indexed submissionId, uint indexed hackathonId, uint indexed prizeId);
     event HackathonPrizeCreated(uint indexed hackathonId, uint indexed prizeId, uint reward, string name, string description);
     event HackathonPrizeJudgeAdded(uint indexed hackathonId, uint indexed prizeId, address judge);
 
@@ -144,8 +147,8 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
     ) pure internal {
         require(_timestampEnd - _timestampStart > 1 days, "Hackathon must be at least 1 day long");
         require(_timestampStart - _currentTimestamp >= 1 days, "Hackathon start date must be at least 1 day in the future");
-        require(_judgingPeriod >= 1, "Judging period must be at least 1 day");
-        require(_judgingPeriod <= 31, "Judging period must not be longer than 31 days");
+        require(_judgingPeriod >= 24, "Judging period must be at least 1 day (24 hours)");
+        require(_judgingPeriod <= 168, "Judging period must not be longer than 7 days (168 hours)");
         require(bytes(_name).length >= 8, "Hackathon name must be at least 8 characters");
         require(bytes(_name).length <= 100, "Hackathon name must be at most 100 characters");
     }
@@ -187,6 +190,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         require(s_prizes[_hackathonId][_prizeId].reward > 0, "Prize not found");
 
         s_prizes[_hackathonId][_prizeId].judges.push(_judge);
+        s_prizes[_hackathonId][_prizeId].isJudge[_judge] = true;
         emit HackathonPrizeJudgeAdded(_hackathonId, _prizeId, _judge);
     }
 
@@ -231,7 +235,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
                 break;
             }
 
-            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 days)) {
+            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 hours)) {
                 hasHackathonsPendingChange = true;
                 break;
             }
@@ -253,16 +257,40 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
                 continue;
             }
 
-            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 days)) {
-                updateHackathonStage(id, HackathonStage.FINALIZED);
-                // TODO finalize = payout
+            if (s_hackathons[id].stage == HackathonStage.JUDGING && block.timestamp > s_hackathons[id].timestampEnd + (s_hackathons[id].judgingPeriod * 1 hours)) {
+                finalizeHackathon(id);
             }
         }
+    }
+
+    function finalizeHackathon(uint hackathonId) internal {
+        for (uint prizeIdx = 0; prizeIdx < s_prizes[hackathonId].length; prizeIdx++) {
+            uint maxScore = 0;
+            uint winningSubmissionIdx = 0;
+            for (uint submissionIdx = 0; submissionIdx < s_prizes[hackathonId][prizeIdx].submissions.length; submissionIdx++) {
+                if (s_prizes[hackathonId][prizeIdx].submissionScores[submissionIdx] > maxScore) {
+                    winningSubmissionIdx = submissionIdx;
+                    maxScore = s_prizes[hackathonId][prizeIdx].submissionScores[submissionIdx];
+                }
+            }
+
+            s_prizes[hackathonId][prizeIdx].finalized = true;
+
+            // Clean, self-documenting code right here
+            s_prizes[hackathonId][prizeIdx].winner = s_submissions[hackathonId][s_prizes[hackathonId][prizeIdx].submissions[winningSubmissionIdx]].participant;
+
+            // TODO should not pay out directly, but rather have a "redeem" external function
+            s_prizes[hackathonId][prizeIdx].winner.transfer(s_prizes[hackathonId][prizeIdx].reward);
+            s_hackathons[hackathonId].balance -= s_prizes[hackathonId][prizeIdx].reward;
+        }
+
+        updateHackathonStage(hackathonId, HackathonStage.FINALIZED);
     }
 
     function submitProject(
         uint _hackathonId,
         string calldata _name,
+        string calldata _description,
         uint[] calldata _prizes // add cid
     ) external {
         require(s_hackathons[_hackathonId].stage == HackathonStage.STARTED, "Hackathon doesn't accept submissions at this stage");
@@ -276,14 +304,34 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         s_submissions[_hackathonId].push();
 
         HackathonSubmission storage submission = s_submissions[_hackathonId][submissionId];
-        submission.participant = msg.sender;
+        submission.participant = payable(msg.sender);
         submission.name = _name;
+        submission.description = _description;
         submission.hackathonId = _hackathonId;
         for (uint prizeIdx = 0; prizeIdx < _prizes.length; prizeIdx++) {
             submission.prizes.push(_prizes[prizeIdx]);
             s_prizes[_hackathonId][_prizes[prizeIdx]].submissions.push(submissionId);
+            emit HackathonSubmissionAddedPrize(submissionId, _hackathonId, _prizes[prizeIdx]);
         }
 
-        emit HackathonSubmissionCreated(submissionId, _hackathonId, msg.sender, _name, _prizes);
+        emit HackathonSubmissionCreated(submissionId, _hackathonId, msg.sender, _name);
+    }
+
+    function voteOnProjects(
+        uint _hackathonId,
+        uint _prizeId,
+        uint8[] calldata _votes
+    ) external {
+        require(s_hackathons[_hackathonId].stage == HackathonStage.JUDGING, "Hackathon is not in a judging stage");
+        require(s_prizes[_hackathonId][_prizeId].isJudge[msg.sender] == true, "You are not this hackathon's judge");
+        require(s_prizes[_hackathonId][_prizeId].alreadyVoted[msg.sender] == false, "You have already voted for this prize");
+        require(_votes.length == s_prizes[_hackathonId][_prizeId].submissions.length, "You must provide a score for each submission");
+        for (uint scoreIdx = 0; scoreIdx < _votes.length; scoreIdx++) {
+            require(_votes[scoreIdx] >= 0, "Scores must be between 0 and 5");
+            require(_votes[scoreIdx] <= 5, "Scores must be between 0 and 5");
+            s_prizes[_hackathonId][_prizeId].submissionScores[scoreIdx] += _votes[scoreIdx];
+        }
+
+        s_prizes[_hackathonId][_prizeId].alreadyVoted[msg.sender] = true;
     }
 }

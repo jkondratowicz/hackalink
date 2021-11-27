@@ -66,3 +66,9 @@ export interface AddPrizeData {
   description: string;
   amount: number;
 }
+
+export interface SubmitProjectData {
+  name: string;
+  description: string;
+  prizes: string[];
+}
