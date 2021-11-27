@@ -87,7 +87,6 @@ export async function getHackathonPrizes(Moralis: MoralisType, hackathon: Hackat
   }
 }
 
-
 export async function getAllHackathons(Moralis: MoralisType): Promise<HackathonMetadata[]> {
   try {
     const HackathonMetadataMoralis = Moralis.Object.extend("HackathonMetadata");
@@ -104,6 +103,58 @@ export async function getAllHackathons(Moralis: MoralisType): Promise<HackathonM
         row.get('name'),
         row.get('url'),
       ]));
+    }
+
+    return response;
+  } catch (e) {
+    // TODO def needs better error handling...
+    console.error(e);
+    return [];
+  }
+}
+
+export async function getJudgesHackathons(Moralis: MoralisType, address: string): Promise<HackathonPrize[]> {
+  try {
+    const HackathonPrizeJudgeAdded = Moralis.Object.extend("HackathonPrizeJudgeAdded");
+    const HackathonPrizeCreated = Moralis.Object.extend("HackathonPrizeCreated");
+    const HackathonMetadataMoralis = Moralis.Object.extend("HackathonMetadata");
+    const query = new Moralis.Query(HackathonPrizeJudgeAdded);
+    query.equalTo('judge', address);
+    const results: any[] = await query.find();
+    const response: HackathonPrize[] = [];
+    for (const row of results) {
+      const queryHackathon = new Moralis.Query(HackathonMetadataMoralis);
+      queryHackathon.equalTo('hackathonId', row.get('hackathonId'));
+      const hackathon = await queryHackathon.first();
+      if (!hackathon) {
+        throw new Error('Hackathon not found');
+      }
+
+      const hackathonInstance = new HackathonMetadata(hackathon.get('hackathonId'), [
+        hackathon.get('organizer'),
+        moment(hackathon.get('timestampStart')).unix(),
+        moment(hackathon.get('timestampEnd')).unix(),
+        hackathon.get('judgingPeriod'),
+        hackathon.get('stage'),
+        hackathon.get('name'),
+        hackathon.get('url'),
+      ]);
+
+      const queryPrize = new Moralis.Query(HackathonPrizeCreated);
+      queryPrize.equalTo('hackathonId', row.get('hackathonId'));
+      queryPrize.equalTo('prizeId', row.get('prizeId'));
+      const prize = await queryPrize.first();
+      if (!prize) {
+        throw new Error('Prize not found');
+      }
+      const prizeInstance: HackathonPrize = new HackathonPrize(prize.get('prizeId'), [
+        prize.get('reward'),
+        [address],
+        prize.get('name'),
+        prize.get('description'),
+      ]);
+      prizeInstance.hackathon = hackathonInstance;
+      response.push(prizeInstance);
     }
 
     return response;

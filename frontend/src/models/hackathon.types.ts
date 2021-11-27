@@ -15,6 +15,7 @@ export class HackathonPrize {
   description: string;
   // submissions;
   // winner: string;
+  hackathon?: HackathonMetadata;
 
   constructor(id: number, prizeData: any[]) {
     this.id = new BigNumber(id);

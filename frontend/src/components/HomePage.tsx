@@ -56,10 +56,16 @@ export function HomePage() {
           <strong>Sponsors</strong> - currently the organizer provides funds for all prizes, as well as determines judges. In the future, hackathons could be open for sponsors who could set up their own prizes.
         </li>
         <li>
-          <strong>Different prize types</strong> - currently the prizes have a simple "winner takes all" rule. There could be different types of prizes, for example pooled prize where each eligible submission wins a portion of the pool.
+          <strong>Different prize types</strong> - currently the prizes have a simple "winner takes all" rule. There could be different types of prizes, for example pooled prize where each eligible submission wins a portion of the pool; or a tiered prize where first place winner gets x%, 2nd place y% etc.
         </li>
         <li>
           <strong>Community prizes</strong> - participants would vote on their favorite submissions, selecting "community prize winners". Possibly this would require using our own token to prevent sybil attacks.
+        </li>
+        <li>
+          <strong>Multi chain</strong> - currently the dApp is deployed to Eth Kovan testnet only. It would be great to run on many chains, especially considering Ethereum mainnet is currently not a viable environment for such a dApp due to huge fees.
+        </li>
+        <li>
+          <strong>IPFS for storage</strong> - instead of just submitting a markdown file as a description, participants could actually submit all of their work (code, video explainer etc.) to IPFS.
         </li>
       </ul>
       <hr />
