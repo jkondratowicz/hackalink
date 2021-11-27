@@ -33,6 +33,10 @@ a {
   }
 }
 
+hr {
+  border: 1px solid $hk-green-light;
+}
+
 .ui.list .list > .item .header, .ui.list > .item .header {
   color: $hk-green-light;
   font-size: 16px;
