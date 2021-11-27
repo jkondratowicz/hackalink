@@ -1,9 +1,7 @@
 import MoralisType from 'moralis';
-import { HackathonMetadata, HackathonPrize, HackathonSubmission } from './hackathon.types';
-import moment from 'moment';
-import * as HackaABI from '../contracts/Hacka.json';
+import { HackathonSubmission } from './hackathon.types';
 
-export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: string, prizeId: string): Promise<any[]> {
+export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: string, prizeId: string): Promise<HackathonSubmission[]> {
   try {
     const HackathonSubmissionAddedPrize = Moralis.Object.extend("HackathonSubmissionAddedPrize");
     const HackathonSubmissionCreated = Moralis.Object.extend("HackathonSubmissionCreated");
