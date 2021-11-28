@@ -2,7 +2,7 @@ event HackathonCreated(uint indexed hackathonId, address indexed organizer, stri
 
 HackathonCreated
 HackathonCreated(uint,address,string,string,uint,uint,uint8)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -59,7 +59,7 @@ event HackathonChanged(uint indexed hackathonId, string name, string url, uint t
 
 HackathonChanged
 HackathonChanged(uint,string,string,uint,uint,uint8)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -110,7 +110,7 @@ event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousSta
 
 HackathonStageChanged
 HackathonStageChanged(uint,uint8,uint8)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -143,7 +143,7 @@ event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackath
 
 HackathonSubmissionCreated
 HackathonSubmissionCreated(uint,uint,address,string, string)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -187,7 +187,7 @@ event HackathonSubmissionAddedPrize(uint indexed submissionId, uint indexed hack
 
 HackathonSubmissionAddedPrize
 HackathonSubmissionAddedPrize(uint,uint,uint)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -220,7 +220,7 @@ event HackathonPrizeCreated(uint indexed hackathonId, uint indexed prizeId, uint
 
 HackathonPrizeCreated
 HackathonPrizeCreated(uint,uint,uint,string,string)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
@@ -265,7 +265,7 @@ event HackathonPrizeJudgeAdded(uint indexed hackathonId, uint indexed prizeId, a
 
 HackathonPrizeJudgeAdded
 HackathonPrizeJudgeAdded(uint,uint,address)
-address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
+address 0xDb83715b52cb35Cb62235c3bb7501b955D29D06d
 
 {
   "anonymous": false,
