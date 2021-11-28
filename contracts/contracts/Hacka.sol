@@ -56,7 +56,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
     event HackathonCreated(uint indexed hackathonId, address indexed organizer, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonChanged(uint indexed hackathonId, string name, string url, uint timestampStart, uint timestampEnd, uint8 judgingPeriod);
     event HackathonStageChanged(uint indexed hackathonId, HackathonStage previousStage, HackathonStage newStage);
-    event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name);
+    event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, string description);
     event HackathonSubmissionAddedPrize(uint indexed submissionId, uint indexed hackathonId, uint indexed prizeId);
     event HackathonPrizeCreated(uint indexed hackathonId, uint indexed prizeId, uint reward, string name, string description);
     event HackathonPrizeJudgeAdded(uint indexed hackathonId, uint indexed prizeId, address judge);
@@ -313,7 +313,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
             emit HackathonSubmissionAddedPrize(submissionId, _hackathonId, _prizes[prizeIdx]);
         }
 
-        emit HackathonSubmissionCreated(submissionId, _hackathonId, msg.sender, _name);
+        emit HackathonSubmissionCreated(submissionId, _hackathonId, msg.sender, _name, _description);
     }
 
     function voteOnProjects(

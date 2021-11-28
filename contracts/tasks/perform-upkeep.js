@@ -19,7 +19,7 @@ task("perform-upkeep", "Emulate keepers upkeep")
 
     await hackaContractInstance.performUpkeep([]).then((data) => {
       console.log("Response is: ", JSON.stringify(data));
-    });
+    }).catch(console.error);
   });
 
 module.exports = {};

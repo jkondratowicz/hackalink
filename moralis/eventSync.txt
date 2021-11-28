@@ -139,10 +139,10 @@ address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
 }
 
 ----------------------------------------------------------------
-event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name);
+event HackathonSubmissionCreated(uint indexed submissionId, uint indexed hackathonId, address indexed participant, string name, string description);
 
 HackathonSubmissionCreated
-HackathonSubmissionCreated(uint,uint,address,string)
+HackathonSubmissionCreated(uint,uint,address,string, string)
 address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
 
 {
@@ -170,6 +170,12 @@ address 0x55C1Be7aFb2E3252F6019e5E476779Fc191ceEa9
       "indexed": false,
       "internalType": "string",
       "name": "name",
+      "type": "string"
+    },
+    {
+      "indexed": false,
+      "internalType": "string",
+      "name": "description",
       "type": "string"
     }
   ],

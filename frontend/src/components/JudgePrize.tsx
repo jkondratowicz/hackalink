@@ -1,4 +1,4 @@
-import { Button, Container, Message, Rating, Table } from 'semantic-ui-react';
+import { Button, Container, Message, Modal, Rating, Table } from 'semantic-ui-react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
@@ -6,6 +6,7 @@ import { ApiContext } from '../hooks/ApiContext';
 import { HackathonSubmission } from '../models/hackathon.types';
 import { getAllPrizeSubmissions } from '../models/prize';
 import * as HackaABI from '../contracts/Hacka.json';
+import ReactMarkdown from 'react-markdown'
 
 export function JudgePrize() {
   const { Moralis, user, enableWeb3 } = useMoralis();
@@ -15,6 +16,9 @@ export function JudgePrize() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState('');
+  const [previewText, setPreviewText] = useState('');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+
   const { fetch } = useWeb3ExecuteFunction({
     abi: HackaABI.abi,
     contractAddress: HackaABI.address,
@@ -86,6 +90,14 @@ export function JudgePrize() {
     });
   };
 
+  const previewDescription = (md: string) => {
+    if (!md) {
+      md = 'No description';
+    }
+    setPreviewText(md);
+    setShowPreview(true);
+  };
+
   if (success) {
     return (
       <Container>
@@ -96,6 +108,13 @@ export function JudgePrize() {
 
   return (
     <Container>
+      <Modal onClose={() => setShowPreview(false)} onOpen={() => setShowPreview(true)} open={showPreview}>
+        <Modal.Content>
+          <ReactMarkdown>
+            {previewText}
+          </ReactMarkdown>
+        </Modal.Content>
+      </Modal>
       <h1>Judge submissions for this prize</h1>
       <p>
         Please rate each project according to this scale:<br />
@@ -120,7 +139,7 @@ export function JudgePrize() {
             <Table.Row key={idx}>
               <Table.Cell>{row.id.toString()}</Table.Cell>
               <Table.Cell>{row.name}</Table.Cell>
-              <Table.Cell>{row.description}</Table.Cell>
+              <Table.Cell><Button color="green" onClick={() => previewDescription(row.description)}>Preview</Button></Table.Cell>
               <Table.Cell>
                 <Rating maxRating={5} onRate={(e, { rating }) => saveRating(idx, rating)} />
               </Table.Cell>

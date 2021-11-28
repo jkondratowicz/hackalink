@@ -12,7 +12,7 @@ export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: 
     const submissionIds = results.map((row) => row.get('submissionId'));
 
     const submissions: HackathonSubmission[] = [];
-
+    console.log(submissionIds);
     for (const submissionId of submissionIds) {
       const subquery = new Moralis.Query(HackathonSubmissionCreated);
       subquery.equalTo('hackathonId', hackathonId);
@@ -22,7 +22,13 @@ export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: 
         continue;
       }
 
-      const descriptionContent = await getDescriptionFromIPFS(submission.get('description'));
+      let descriptionContent;
+      try {
+        descriptionContent = await getDescriptionFromIPFS(submission.get('description'));
+      } catch(e) {
+        console.log('Could not find file in IPFS');
+        descriptionContent = submission.get('description');
+      }
 
       submissions.push(
         new HackathonSubmission(submissionId, [submission.get('participant'), submission.get('name'), descriptionContent, submission.get('hackathonId')])

@@ -12,9 +12,18 @@ import { Participate } from './Participate';
 import 'react-datetime/css/react-datetime.css';
 import { JudgeMain } from './JudgeMain';
 import { JudgePrize } from './JudgePrize';
+import { useMoralis } from 'react-moralis';
+import { Dimmer, Loader } from 'semantic-ui-react';
 
 function App() {
   const [showSpinner, setShowSpinner] = React.useState(false);
+  const { isInitialized } = useMoralis();
+  if (!isInitialized) {
+    return <Dimmer active={true}>
+      <Loader size='large' />
+    </Dimmer>;
+  }
+
   return (
     <ApiContext.Provider value={{ showSpinner, setShowSpinner }}>
       <div id="hacka-dapp" className="">
