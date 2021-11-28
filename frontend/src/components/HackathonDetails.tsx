@@ -66,7 +66,7 @@ export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
               <List.Item>
                 <List.Content>
                   <List.Header>Judging period:</List.Header>
-                  <List.Description>{hackathonMetadata.judgingPeriod} days</List.Description>
+                  <List.Description>{hackathonMetadata.judgingPeriod} hours</List.Description>
                 </List.Content>
               </List.Item>
               <List.Item>
@@ -106,7 +106,7 @@ export function HackathonDetails({ hackathonMetadata }: HackathonDetailsProps) {
                       </List.Content>
                     </List.Item>
                   </List>
-                  {isOrganizer && <><hr /><AddJudge hackathonMetadata={hackathonMetadata} prize={prize} /></>}
+                  {isOrganizer && hackathonMetadata.stage === HackathonStage.NEW && <><hr /><AddJudge hackathonMetadata={hackathonMetadata} prize={prize} /></>}
                 </Segment>
               ))}
           </Grid.Column>

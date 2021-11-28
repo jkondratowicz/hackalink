@@ -14,6 +14,7 @@
     "@walletconnect/web3-provider": "^1.6.6",
     "bignumber.js": "^9.0.1",
     "ethereum-blockies-base64": "^1.0.2",
+    "ipfs-car": "^0.6.0",
     "moment": "^2.29.1",
     "react": "^17.0.2",
     "react-datetime": "^3.1.1",
@@ -26,7 +27,8 @@
     "semantic-ui-react": "^2.0.4",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1",
-    "web3": "^1.6.0"
+    "web3": "^1.6.0",
+    "web3.storage": "^3.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -42,14 +44,12 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "last 1 chrome version",
+      "last 1 firefox version"
     ],
     "development": [
       "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 firefox version"
     ]
   },
   "devDependencies": {

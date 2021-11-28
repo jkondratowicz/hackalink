@@ -3,8 +3,8 @@ import { HackathonSubmission } from './hackathon.types';
 
 export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: string, prizeId: string): Promise<HackathonSubmission[]> {
   try {
-    const HackathonSubmissionAddedPrize = Moralis.Object.extend("HackathonSubmissionAddedPrize");
-    const HackathonSubmissionCreated = Moralis.Object.extend("HackathonSubmissionCreated");
+    const HackathonSubmissionAddedPrize = Moralis.Object.extend('HackathonSubmissionAddedPrize');
+    const HackathonSubmissionCreated = Moralis.Object.extend('HackathonSubmissionCreated');
     const query = new Moralis.Query(HackathonSubmissionAddedPrize);
     query.equalTo('hackathonId', hackathonId);
     query.equalTo('prizeId', prizeId);
@@ -22,12 +22,11 @@ export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: 
         continue;
       }
 
-      submissions.push(new HackathonSubmission(submissionId, [
-        submission.get('participant'),
-        submission.get('name'),
-        submission.get('description'),
-        submission.get('hackathonId'),
-      ]));
+      const descriptionContent = await getDescriptionFromIPFS(submission.get('description'));
+
+      submissions.push(
+        new HackathonSubmission(submissionId, [submission.get('participant'), submission.get('name'), descriptionContent, submission.get('hackathonId')])
+      );
     }
 
     return submissions;
@@ -37,3 +36,12 @@ export async function getAllPrizeSubmissions(Moralis: MoralisType, hackathonId: 
     return [];
   }
 }
+
+export const getDescriptionFromIPFS = async (cid: string): Promise<string> => {
+  console.log(`Fetching ${cid} from IPFS`);
+  const res = await fetch(`https://${cid}.ipfs.dweb.link`);
+  if (!res || !res.ok) {
+    throw new Error(`Error getting cid ${cid}: [${res?.status}] ${res?.statusText}`);
+  }
+  return res.json();
+};

@@ -25,13 +25,12 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         string name;
         string url;
         uint balance;
-        // TODO cid for description
     }
 
     struct HackathonSubmission {
         address payable participant;
         string name;
-        string description; // TODO cid for description...
+        string description;
         uint hackathonId;
         uint[] prizes;
     }
@@ -291,7 +290,7 @@ contract Hacka is Ownable, KeeperCompatibleInterface {
         uint _hackathonId,
         string calldata _name,
         string calldata _description,
-        uint[] calldata _prizes // add cid
+        uint[] calldata _prizes
     ) external {
         require(s_hackathons[_hackathonId].stage == HackathonStage.STARTED, "Hackathon doesn't accept submissions at this stage");
         require(bytes(_name).length >= 4, "Submission name must be at least 4 characters");

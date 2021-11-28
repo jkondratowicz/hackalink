@@ -66,7 +66,7 @@ export function AddJudge({ hackathonMetadata, prize }: AddJudgeProps) {
     await enableWeb3();
     try {
       if (!isValidAddress(data)) {
-        throw new Error('Not a valid wallet addres...');
+        throw new Error('Not a valid wallet address...');
       }
       setShowSpinner(true);
       await addJudge();

@@ -5,13 +5,15 @@ import { useMoralis } from 'react-moralis';
 import * as HackaABI from '../contracts/Hacka.json';
 import { HackathonPrize, SubmitProjectData } from '../models/hackathon.types';
 import { useUtils } from '../hooks/Utils';
+import { useWeb3Storage } from '../hooks/Web3Storage';
 
 export function SubmitProject({ hackathonMetadata }: HackathonDetailsProps) {
-  const { enableWeb3, Moralis } = useMoralis();
+  const { enableWeb3, Moralis, user } = useMoralis();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showSpinner, setShowSpinner] = useState(false);
   const { formatWei } = useUtils();
+  const { storeAsJson } = useWeb3Storage();
 
   const defaultValues: SubmitProjectData = {
     name: '',
@@ -19,6 +21,10 @@ export function SubmitProject({ hackathonMetadata }: HackathonDetailsProps) {
     prizes: [],
   };
   const [data, setData] = useState<SubmitProjectData>(defaultValues);
+
+  if (!user?.get('ethAddress')) {
+    return null;
+  }
 
   const handleMoralisError = (err: string[] | Error | any) => {
     console.log(err);
@@ -39,6 +45,11 @@ export function SubmitProject({ hackathonMetadata }: HackathonDetailsProps) {
     console.log('Creating', data);
     setError('');
 
+    // Save description to IPFS
+    const fileName = `hackathon_${hackathonMetadata?.id.toString()}_${user.get('ethAddress')}.json`;
+    const cid = await storeAsJson(data.description, fileName);
+    console.log('cid', cid);
+
     const options = {
       contractAddress: HackaABI.address,
       abi: HackaABI.abi,
@@ -46,7 +57,7 @@ export function SubmitProject({ hackathonMetadata }: HackathonDetailsProps) {
       params: {
         _hackathonId: hackathonMetadata?.id?.toString(),
         _name: data.name.trim(),
-        _description: data.description.trim(),
+        _description: cid,
         _prizes: data.prizes,
       },
     };

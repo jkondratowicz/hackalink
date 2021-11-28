@@ -95,7 +95,7 @@ export function CreateHackathon() {
     <>
       <Link to="/organize">Back to the list</Link>
       <p>
-        Congratulations, your hackathon has been crated! For more details, see tx hash <code>{success}</code>.
+        Congratulations, your hackathon has been created! For more details, see tx hash <code>{success}</code>.
       </p>
     </>
   ) : (
